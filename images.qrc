@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>res/images/tiles.png</file>
+    </qresource>
+    <qresource prefix="/effects"/>
+</RCC>
