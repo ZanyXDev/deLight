@@ -1,6 +1,7 @@
 <RCC>
     <qresource prefix="/">
-        <file>res/images/tiles.png</file>
+        <file>res/images/black.png</file>
+        <file>res/images/blue.png</file>
     </qresource>
     <qresource prefix="/effects"/>
 </RCC>
