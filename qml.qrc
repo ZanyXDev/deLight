@@ -7,5 +7,8 @@
         <file>res/qml/common/app_singleton.qml</file>
         <file>res/qml/common/app_ver_txt.qml</file>
         <file>res/qml/common/fade_stack_layout.qml</file>
+        <file>res/qml/pages/qmldir</file>
+        <file>res/qml/datamodels/cell_datamodel.qml</file>
+        <file>res/qml/datamodels/levels_datamodel.qml</file>
     </qresource>
 </RCC>
