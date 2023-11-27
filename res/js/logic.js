@@ -1,6 +1,19 @@
 .pragma library
 
-function calcRandomDuration(m_behavior_pause) {
-  var rnd = 1 + Math.random() * 0.4 - 0.2
-  return Math.floor(m_behavior_pause * rnd)
+function getRandomBgrImage(last) {
+    let rnd = last;
+    while (rnd === last) {
+        rnd = Math.floor(Math.random() * 21)
+    }
+
+    let bgrStr = rnd.toString();
+
+    if (bgrStr.length === 1) {
+        bgrStr = "0" + bgrStr
+    }
+    return "qrc:/res/images/backgrounds/bgr" + bgrStr + ".jpg"
 }
+
+
+
+
