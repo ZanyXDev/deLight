@@ -6,6 +6,8 @@ import QtGraphicalEffects 1.15
 import Qt.labs.settings 1.0
 
 import common 1.0
+import pages 1.0
+
 import "qrc:/res/js/logic.js" as Logic
 import io.github.zanyxdev.delight 1.0
 
@@ -68,18 +70,19 @@ QQC2.ApplicationWindow {
     }
 
     background: Image {
-        id: background
-        anchors.fill: parent
-        source: ""//Utils.getNextBgrImage(mSettings.currentBgrIndex)
-        fillMode: Image.PreserveAspectCrop
-        opacity: 0.8
-    }
+           id: background
+           anchors.fill: parent
+           source: Logic.getRandomBgrImage( mSettings.currentBgrIndex )
+           fillMode: Image.PreserveAspectCrop
+           opacity: 0.8
+       }
+
 
     // ----- Visual children
     FadeStackLayout {
         id: fadeLayout
 
-      //  GamePage {}
+        GamePage {}
     }
     //  ----- non visual children
     Settings {
