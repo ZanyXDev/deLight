@@ -45,13 +45,15 @@ QQC2.ApplicationWindow {
 
     // ----- Signal handlers
     onScreenOrientationChanged: {
-        screenOrientationUpdated(screenOrientation)        
+        screenOrientationUpdated(screenOrientation)
     }
     Component.onCompleted: {
 
         AppSingleton.toLog(`HAL.devicePixelRatio :[${HAL.devicePixelRatio}]`)
         timerT1.start()
+        ///TODO select level and fill Model
     }
+
     Component.onDestruction: {
         var bgrIndex = mSettings.currentBgrIndex
         bgrIndex++
@@ -70,12 +72,12 @@ QQC2.ApplicationWindow {
     }
 
     background: Image {
-           id: background
-           anchors.fill: parent
-           source: Logic.getRandomBgrImage( mSettings.currentBgrIndex )
-           fillMode: Image.PreserveAspectCrop
-           opacity: 0.8
-       }
+        id: background
+        anchors.fill: parent
+        source: Logic.getRandomBgrImage( mSettings.currentBgrIndex )
+        fillMode: Image.PreserveAspectCrop
+        opacity: 0.8
+    }
 
 
     // ----- Visual children
