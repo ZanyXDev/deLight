@@ -53,19 +53,7 @@ QQC2.Page {
             padding: 2 * DevicePixelRatio
             color:"black"
         }
-        ProportionalRect{
-            id:invisibleTarget
-            Layout.fillWidth: true
-            Layout.preferredHeight: 4 * DevicePixelRatio
-            Rectangle {
-                id: target;
-                width:4 * DevicePixelRatio
-                height:4 * DevicePixelRatio
-                color: (isDebugMode) ? "red":"transparent";
-                anchors.top: parent.top;
-                anchors.right: parent.right;
-            }
-        }
+
 
         ProportionalRect {
             id:boxMoveScore
@@ -164,7 +152,7 @@ QQC2.Page {
                     Layout.preferredHeight: 24 * DevicePixelRatio
                     text: "Restart"
                     onClicked: {
-
+                        explosion.explode()
                     }
                 }
                 Item {
@@ -175,60 +163,71 @@ QQC2.Page {
             }
         }
 
-        GridLayout{
-            id:gameGridLayout
+        ProportionalRect{
+            id:gameGridRectangle
             Layout.fillWidth: true
-            Layout.fillHeight: true
-            Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
-            columns: 5
-            columnSpacing: 8*DevicePixelRatio
-            rowSpacing: 8*DevicePixelRatio
+            Layout.preferredHeight: 262 * DevicePixelRatio
+            Layout.alignment:  Qt.AlignHCenter
 
-            Repeater {
-                model:levelsModel
-                delegate:Rectangle{
-                    property int idx: index
-                    height: 48 * DevicePixelRatio
-                    width: 48 * DevicePixelRatio
-                    border.color: "darkgrey"
-                    border.width: 2* DevicePixelRatio
-                    radius: 6*DevicePixelRatio
-                    smooth: true
-                    gradient: Gradient {
-                        GradientStop { position: 0.0; color: (cell)? "lightblue" :"lightgrey" }
-                        GradientStop { position: 1.0; color: (cell)? "steelblue" :"black" }
-                    }
-                    layer.enabled: true
-                    layer.effect: DropShadow {
-                        horizontalOffset: 3* DevicePixelRatio
-                        verticalOffset: 4* DevicePixelRatio
-                        radius: 6 * DevicePixelRatio
-                        samples: 11
-                        color: "black"
-                        opacity: 0.75
-                    }
-                    MouseArea{
-                        id:mArea
-                        anchors.fill: parent
-                        onClicked:{
-                            explosion.explode()
-                            model.cell = (model.cell) ? 0:1
+            GridLayout{
+                id:gameGridLayout
+                anchors.fill: parent
+                anchors.leftMargin: 8 * DevicePixelRatio
 
-                            let m_col = model.index  % 5
-                            let m_row = Math.floor(model.index / 5 )
-                            let m_index;
-                            if ( m_col-1 >=0){
-                                m_index = (m_col-1) + (m_row *5 )
-                                levelsModel.setProperty(m_index, "cell", model.cell & 1)
+                columns: 5
+                columnSpacing: 8*DevicePixelRatio
+                rowSpacing: 8*DevicePixelRatio
+
+                Repeater {
+                    model:levelsModel
+                    delegate:Rectangle{
+                        property int idx: index
+                        height: 48 * DevicePixelRatio
+                        width: 48 * DevicePixelRatio
+                        border.color: "darkgrey"
+                        border.width: 2* DevicePixelRatio
+                        radius: 6*DevicePixelRatio
+                        smooth: true
+                        gradient: Gradient {
+                            GradientStop { position: 0.0; color: (cell)? "lightblue" :"lightgrey" }
+                            GradientStop { position: 1.0; color: (cell)? "steelblue" :"black" }
+                        }
+                        layer.enabled: true
+                        layer.effect: DropShadow {
+                            horizontalOffset: 3* DevicePixelRatio
+                            verticalOffset: 4* DevicePixelRatio
+                            radius: 6 * DevicePixelRatio
+                            samples: 11
+                            color: "black"
+                            opacity: 0.75
+                        }
+                        MouseArea{
+                            id:mouseArea
+                            anchors.fill: parent
+                            onClicked:{
+                                explosion.parent = parent
+                                explosion.explode()
+
+                                model.cell = (model.cell) ? 0:1
+
+                                let m_col = model.index  % 5
+                                let m_row = Math.floor(model.index / 5 )
+                                let m_index;
+                                if ( m_col-1 >=0){
+                                    m_index = (m_col-1) + (m_row *5 )
+                                    levelsModel.setProperty(m_index, "cell", model.cell & 1)
+                                }
+                                moves ++;
+
                             }
-                            moves ++;
                         }
                     }
-                }
-                Component.onCompleted: {
-                    AppSingleton.toLog(`Repeater model ${model.count}`)
+                    Component.onCompleted: {
+                        AppSingleton.toLog(`Repeater model ${model.count}`)
+                    }
                 }
             }
+
         }
         Item {
             // spacer item
