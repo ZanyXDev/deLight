@@ -6,6 +6,8 @@ import QtGraphicalEffects 1.0
 
 import common 1.0
 import datamodels 1.0
+import effects 1.0
+
 import "qrc:/res/js/logic.js" as Logic
 
 QQC2.Page {
@@ -15,8 +17,10 @@ QQC2.Page {
 
     // https://doc.qt.io/qt-5/qtqml-syntax-objectattributes.html#a-note-about-accessing-attached-properties-and-signal-handlers
     property bool pageActive: false
-    property ListModel levelsModel:LevelsDataModel{}
+
     property int currentLevel: 0
+    property int moves: 0
+    property int score: 0
 
     // ----- Signal declarations
     // ----- Size information
@@ -31,97 +35,216 @@ QQC2.Page {
     }
     Component.onCompleted: {
         AppSingleton.toLog(`GamePage [${root.height}h,${root.width}w]`)
-        gameTicTimer.start()
     }
 
     //-------------
-    GridLayout{
-        id:gameGridLayout
-        columns: 5
-        columnSpacing: 4*DevicePixelRatio
-        rowSpacing: 4*DevicePixelRatio
+    ColumnLayout{
+        id: mainVerticalLayout
+        anchors.fill: parent
+        spacing: 2 *DevicePixelRatio
+        component ProportionalRect:Item {
+            Layout.fillWidth: true
+            Layout.preferredHeight: 1 * DevicePixelRatio
+        }
+        component InfoLabel:QQC2.Label {
+            font { family: AppSingleton.digitalFont.name}
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+            padding: 2 * DevicePixelRatio
+            color:"black"
+        }
+        ProportionalRect{
+            id:invisibleTarget
+            Layout.fillWidth: true
+            Layout.preferredHeight: 4 * DevicePixelRatio
+            Rectangle {
+                id: target;
+                width:4 * DevicePixelRatio
+                height:4 * DevicePixelRatio
+                color: (isDebugMode) ? "red":"transparent";
+                anchors.top: parent.top;
+                anchors.right: parent.right;
+            }
+        }
 
-        Repeater {
-            model:levelsModel.get(currentLevel).level_model
-
-            delegate:Rectangle{
-                property int idx: index
-                height: 48 * DevicePixelRatio
-                width: 48 * DevicePixelRatio
-                border.color: "darkgrey"
-                border.width: 2* DevicePixelRatio
-                radius: 6*DevicePixelRatio
-                smooth: true
-                gradient: Gradient {
-                    GradientStop { position: 0.0; color: (cell)? "lightblue" :"lightgrey" }
-                    GradientStop { position: 1.0; color: (cell)? "steelblue" :"black" }
+        ProportionalRect {
+            id:boxMoveScore
+            Layout.preferredHeight: 64 * DevicePixelRatio
+            RowLayout {
+                id:infoLayout
+                spacing: 5 * DevicePixelRatio
+                Item {
+                    // spacer item
+                    Layout.fillHeight: true
+                    Layout.preferredWidth:  5 * DevicePixelRatio
                 }
-                layer.enabled: true
-                layer.effect: DropShadow {
-                    horizontalOffset: 3* DevicePixelRatio
-                    verticalOffset: 4* DevicePixelRatio
-                    radius: 6
-                    samples: 11
-                    color: "black"
-                    opacity: 0.75
-                }
-                MouseArea{
-                    id:mArea
-                    anchors.fill: parent
-                    onClicked:{
-                        Logic.test(  idx, model.cell )
+                Item {
+                    id:movePanel
+                    Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
+                    Layout.preferredWidth:  72 * DevicePixelRatio
+                    Layout.preferredHeight: 64 * DevicePixelRatio
 
-                        model.cell = (model.cell) ? 0:1
-                        levelsModel.get(0).level_model.setProperty(1,"cell",0)
+                    opacity: 0.9
+                    Item {
+                        id:movesBox
+                        ColumnLayout{
+                            id:moveBoxColLayout
+                            Item {
+                                // spacer item
+                                Layout.fillWidth: true
+                                Layout.preferredHeight:  5 * DevicePixelRatio
+                            }
+                            InfoLabel{
+                                id:textMoves
+                                Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
+                                font.pointSize: AppSingleton.averageFontSize
+                                text:qsTr("Moves")
+                            }
+                            Item {
+                                // spacer item
+                                Layout.fillWidth: true
+                                Layout.preferredHeight:  5 * DevicePixelRatio
+                            }
+                            InfoLabel {
+                                id:valueMoves
+                                Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
+                                font.pointSize: AppSingleton.middleFontSize
+                                text: moves
+                            }
+                        }
+                    }
+                }
+                Item {
+                    id:scorePanel
+                    Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
+                    Layout.preferredWidth:  72 * DevicePixelRatio
+                    Layout.preferredHeight: 64 * DevicePixelRatio
+                    opacity: 0.9
+                    ColumnLayout {
+                        id:scoreBoxColLayout
+                        Item {
+                            // spacer item
+                            Layout.fillWidth: true
+                            Layout.preferredHeight:  5 * DevicePixelRatio
+                        }
+                        InfoLabel {
+                            id:textScore
+                            Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
+                            font.pointSize: AppSingleton.averageFontSize
+                            text:qsTr("Score")
+                        }
+                        Item {
+                            // spacer item
+                            Layout.fillWidth: true
+                            Layout.preferredHeight:  5 * DevicePixelRatio
+                        }
+                        InfoLabel {
+                            id:valueScore
+                            Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
+                            font.pointSize: AppSingleton.middleFontSize
+                            text:score
+                        }
+                    }
+                }
+
+                BaseButton{
+                    id:newGameButton
+                    Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
+                    Layout.preferredWidth:  64 * DevicePixelRatio
+                    Layout.preferredHeight: 24 * DevicePixelRatio
+                    text: "New"
+                    onClicked: {
 
                     }
                 }
-            }
-            Component.onCompleted: {
-                AppSingleton.toLog(`Repeater model ${model.count}`)
+                BaseButton{
+                    id:restartGameButton
+                    Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
+                    Layout.preferredWidth:  64 * DevicePixelRatio
+                    Layout.preferredHeight: 24 * DevicePixelRatio
+                    text: "Restart"
+                    onClicked: {
+
+                    }
+                }
+                Item {
+                    // spacer item
+                    Layout.fillHeight: true
+                    Layout.preferredWidth:  5 * DevicePixelRatio
+                }
             }
         }
 
-    }
-    QQC2.Button{
-        id:test
-        anchors.bottom: parent.bottom
-        text: "Test"
-        onClicked: {
+        GridLayout{
+            id:gameGridLayout
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
+            columns: 5
+            columnSpacing: 8*DevicePixelRatio
+            rowSpacing: 8*DevicePixelRatio
 
-            levelsModel.get(0).level_model.setProperty(1,"cell",0)
+            Repeater {
+                model:levelsModel
+                delegate:Rectangle{
+                    property int idx: index
+                    height: 48 * DevicePixelRatio
+                    width: 48 * DevicePixelRatio
+                    border.color: "darkgrey"
+                    border.width: 2* DevicePixelRatio
+                    radius: 6*DevicePixelRatio
+                    smooth: true
+                    gradient: Gradient {
+                        GradientStop { position: 0.0; color: (cell)? "lightblue" :"lightgrey" }
+                        GradientStop { position: 1.0; color: (cell)? "steelblue" :"black" }
+                    }
+                    layer.enabled: true
+                    layer.effect: DropShadow {
+                        horizontalOffset: 3* DevicePixelRatio
+                        verticalOffset: 4* DevicePixelRatio
+                        radius: 6 * DevicePixelRatio
+                        samples: 11
+                        color: "black"
+                        opacity: 0.75
+                    }
+                    MouseArea{
+                        id:mArea
+                        anchors.fill: parent
+                        onClicked:{
+                            explosion.explode()
+                            model.cell = (model.cell) ? 0:1
+
+                            let m_col = model.index  % 5
+                            let m_row = Math.floor(model.index / 5 )
+                            let m_index;
+                            if ( m_col-1 >=0){
+                                m_index = (m_col-1) + (m_row *5 )
+                                levelsModel.setProperty(m_index, "cell", model.cell & 1)
+                            }
+                            moves ++;
+                        }
+                    }
+                }
+                Component.onCompleted: {
+                    AppSingleton.toLog(`Repeater model ${model.count}`)
+                }
+            }
+        }
+        Item {
+            // spacer item
+            Layout.fillHeight: true
+            Layout.fillWidth: true
         }
     }
-
 
     //-------------
     // ----- Qt provided non-visual children
 
-    ListModel{
-        id:itemsModel
-        ListElement{
-            type_id:1
-            src: "qrc:/res/images/ball_in_yan.png"
-            pos_x: 10
-            pos_y: 10
-            size_hw: 32
-            speed: 1.0
-            angle: 10.5
-            desc: "ball"
-        }
+    LevelsDataModel{
+        id:levelsModel
     }
-
-    Timer {
-        id: gameTicTimer
-        interval: AppSingleton.timer16
-        repeat: true
-        running: false
-        onTriggered: {
-            //Logic.updateWord(BallData)
-            itemsModel.get(0).pos_x += 1
-            //itemsModel.setProperty(1, "pos_x", pos_x + 2)
-        }
+    Explosion {
+        id: explosion
     }
-
 
 }
