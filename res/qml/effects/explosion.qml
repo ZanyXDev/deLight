@@ -4,7 +4,6 @@ import QtQuick.Particles 2.15
 // https://russianblogs.com/article/2292554914/
 Item {
     anchors.fill: parent
-    property alias x_pos: particles.x
 
     Rectangle {
         id: target;
@@ -17,6 +16,10 @@ Item {
     }
 
     function explode(){
+        if (particleSystem.running) {
+            particleSystem.reset()
+        }
+
         particles.burst(particles.emitRate)
     }
 
@@ -33,6 +36,8 @@ Item {
     Emitter{
         id: particles
         system: particleSystem
+        anchors.left: parent.left;
+        anchors.bottom: parent.bottom;
         enabled: false
         startTime: 0
 
@@ -45,8 +50,8 @@ Item {
         lifeSpanVariation: 2000
 
         maximumEmitted: 1000
-        size: 5
-        endSize: 40
+        size: 4
+        endSize: 48
 
         velocity: TargetDirection {
             targetItem: target;
@@ -55,6 +60,7 @@ Item {
             targetVariation: target.width/2;
             magnitude: parent.height/3;
         }
+
     }
 }
 
