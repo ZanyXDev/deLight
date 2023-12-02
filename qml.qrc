@@ -13,5 +13,6 @@
         <file>res/qml/datamodels/levels_datamodel.qml</file>
         <file>res/qml/effects/explosion.qml</file>
         <file>res/qml/effects/qmldir</file>
+        <file>res/qml/common/basebutton.qml</file>
     </qresource>
 </RCC>
