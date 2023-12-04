@@ -180,82 +180,31 @@ QQC2.Page {
 
                 Repeater {
                     model:levelsModel
-                    delegate:Rectangle{
-                        property int idx: index
-                        property int x_pos: idx % 5
-                        property int y_pos: idx / 5
+                    delegate:Tile{
+                        idx: index
+                        x_pos: idx % 5
+                        y_pos: idx / 5
+                        lighting: model.cell
 
-                        height: 48 * DevicePixelRatio
-                        width: 48 * DevicePixelRatio
-                        border.color: "darkgrey"
-                        border.width: 2* DevicePixelRatio
-                        radius: 6*DevicePixelRatio
-                        smooth: true
-                        gradient: Gradient {
-                            GradientStop { position: 0.0; color: (cell)? "lightblue" :"lightgrey" }
-                            GradientStop { position: 1.0; color: (cell)? "steelblue" :"black" }
-                        }
-                        layer.enabled: true
-                        layer.effect: DropShadow {
-                            horizontalOffset: 3* DevicePixelRatio
-                            verticalOffset: 4* DevicePixelRatio
-                            radius: 6 * DevicePixelRatio
-                            samples: 11
-                            color: "black"
-                            opacity: 0.75
-                        }
-                        MouseArea{
-                            id:mouseArea
-                            anchors.fill: parent
-                            onClicked:{
-                                explosion.parent = parent
-                                explosion.explode()
-                                moves ++
-
-                                model.cell = (model.cell) ? 0 : 1
-                                let m_index = -1
-                                let m_value
-
-                                if ( (x_pos - 1) >= 0 ){
-                                    m_index = (x_pos - 1) + (y_pos *5)
-                                    m_value = (levelsModel.get(m_index).cell) ? 0 : 1
-                                    levelsModel.setProperty(m_index, "cell", m_value)
-                                }
-
-                                if ( (x_pos + 1) < 5 ){
-                                    m_index = (x_pos + 1) + (y_pos *5)
-                                    m_value = (levelsModel.get(m_index).cell) ? 0 : 1
-                                    levelsModel.setProperty(m_index, "cell", m_value)
-                                }
-
-                                if ( (y_pos - 1) >= 0 ){
-                                    m_index = x_pos + ( (y_pos - 1) *5)
-                                    m_value = (levelsModel.get(m_index).cell) ? 0 : 1
-                                    levelsModel.setProperty(m_index, "cell", m_value)
-                                }
-
-                                if ( (y_pos + 1) < 5 ){
-                                    m_index = x_pos + ( (y_pos + 1) *5)
-                                    m_value = (levelsModel.get(m_index).cell) ? 0 : 1
-                                    levelsModel.setProperty(m_index, "cell", m_value)
-                                }
-                            }
-                        }
-
-                        Component.onCompleted: {
-                            AppSingleton.toLog(`Cell [${x_pos},${y_pos}] index: ${index}`)
+                        onClicked:{
+                            explosion.parent = this
+                            explosion.explode()
+                            moves ++
+                            model.cell = (model.cell) ? 0 : 1
+                            clickOnTile(x_pos,y_pos)
                         }
                     }
                 }
             }
-
         }
+
         Item {
             // spacer item
             Layout.fillHeight: true
             Layout.fillWidth: true
         }
     }
+
 
     //-------------
     // ----- Qt provided non-visual children
@@ -267,4 +216,33 @@ QQC2.Page {
         id: explosion
     }
 
+
+    function clickOnTile(x_pos,y_pos){
+        let m_index = -1
+        let m_value
+
+        if ( (x_pos - 1) >= 0 ){
+            m_index = (x_pos - 1) + (y_pos *5)
+            m_value = (levelsModel.get(m_index).cell) ? 0 : 1
+            levelsModel.setProperty(m_index, "cell", m_value)
+        }
+
+        if ( (x_pos + 1) < 5 ){
+            m_index = (x_pos + 1) + (y_pos *5)
+            m_value = (levelsModel.get(m_index).cell) ? 0 : 1
+            levelsModel.setProperty(m_index, "cell", m_value)
+        }
+
+        if ( (y_pos - 1) >= 0 ){
+            m_index = x_pos + ( (y_pos - 1) *5)
+            m_value = (levelsModel.get(m_index).cell) ? 0 : 1
+            levelsModel.setProperty(m_index, "cell", m_value)
+        }
+
+        if ( (y_pos + 1) < 5 ){
+            m_index = x_pos + ( (y_pos + 1) *5)
+            m_value = (levelsModel.get(m_index).cell) ? 0 : 1
+           levelsModel.setProperty(m_index, "cell", m_value)
+        }
+    }
 }
