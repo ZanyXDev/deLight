@@ -182,6 +182,9 @@ QQC2.Page {
                     model:levelsModel
                     delegate:Rectangle{
                         property int idx: index
+                        property int x_pos: idx % 5
+                        property int y_pos: idx / 5
+
                         height: 48 * DevicePixelRatio
                         width: 48 * DevicePixelRatio
                         border.color: "darkgrey"
@@ -207,23 +210,41 @@ QQC2.Page {
                             onClicked:{
                                 explosion.parent = parent
                                 explosion.explode()
+                                moves ++
 
-                                model.cell = (model.cell) ? 0:1
+                                model.cell = (model.cell) ? 0 : 1
+                                let m_index = -1
+                                let m_value
 
-                                let m_col = model.index  % 5
-                                let m_row = Math.floor(model.index / 5 )
-                                let m_index;
-                                if ( m_col-1 >=0){
-                                    m_index = (m_col-1) + (m_row *5 )
-                                    levelsModel.setProperty(m_index, "cell", model.cell & 1)
+                                if ( (x_pos - 1) >= 0 ){
+                                    m_index = (x_pos - 1) + (y_pos *5)
+                                    m_value = (levelsModel.get(m_index).cell) ? 0 : 1
+                                    levelsModel.setProperty(m_index, "cell", m_value)
                                 }
-                                moves ++;
 
+                                if ( (x_pos + 1) < 5 ){
+                                    m_index = (x_pos + 1) + (y_pos *5)
+                                    m_value = (levelsModel.get(m_index).cell) ? 0 : 1
+                                    levelsModel.setProperty(m_index, "cell", m_value)
+                                }
+
+                                if ( (y_pos - 1) >= 0 ){
+                                    m_index = x_pos + ( (y_pos - 1) *5)
+                                    m_value = (levelsModel.get(m_index).cell) ? 0 : 1
+                                    levelsModel.setProperty(m_index, "cell", m_value)
+                                }
+
+                                if ( (y_pos + 1) < 5 ){
+                                    m_index = x_pos + ( (y_pos + 1) *5)
+                                    m_value = (levelsModel.get(m_index).cell) ? 0 : 1
+                                    levelsModel.setProperty(m_index, "cell", m_value)
+                                }
                             }
                         }
-                    }
-                    Component.onCompleted: {
-                        AppSingleton.toLog(`Repeater model ${model.count}`)
+
+                        Component.onCompleted: {
+                            AppSingleton.toLog(`Cell [${x_pos},${y_pos}] index: ${index}`)
+                        }
                     }
                 }
             }
