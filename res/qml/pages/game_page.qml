@@ -21,6 +21,7 @@ QQC2.Page {
     property int currentLevel: 0
     property int moves: 0
     property int score: 0
+    property bool winState: false
 
     // ----- Signal declarations
     // ----- Size information
@@ -35,6 +36,7 @@ QQC2.Page {
     }
     Component.onCompleted: {
         AppSingleton.toLog(`GamePage [${root.height}h,${root.width}w]`)
+        test(levelsModel)
     }
 
     //-------------
@@ -53,7 +55,6 @@ QQC2.Page {
             padding: 2 * DevicePixelRatio
             color:"black"
         }
-
 
         ProportionalRect {
             id:boxMoveScore
@@ -162,9 +163,9 @@ QQC2.Page {
                 }
             }
         }
-
         ProportionalRect{
             id:gameGridRectangle
+            enabled: !winState
             Layout.fillWidth: true
             Layout.preferredHeight: 262 * DevicePixelRatio
             Layout.alignment:  Qt.AlignHCenter
@@ -180,54 +181,45 @@ QQC2.Page {
 
                 Repeater {
                     model:levelsModel
-                    delegate:Rectangle{
-                        property int idx: index
-                        height: 48 * DevicePixelRatio
-                        width: 48 * DevicePixelRatio
-                        border.color: "darkgrey"
-                        border.width: 2* DevicePixelRatio
-                        radius: 6*DevicePixelRatio
-                        smooth: true
-                        gradient: Gradient {
-                            GradientStop { position: 0.0; color: (cell)? "lightblue" :"lightgrey" }
-                            GradientStop { position: 1.0; color: (cell)? "steelblue" :"black" }
-                        }
-                        layer.enabled: true
-                        layer.effect: DropShadow {
-                            horizontalOffset: 3* DevicePixelRatio
-                            verticalOffset: 4* DevicePixelRatio
-                            radius: 6 * DevicePixelRatio
-                            samples: 11
-                            color: "black"
-                            opacity: 0.75
-                        }
-                        MouseArea{
-                            id:mouseArea
-                            anchors.fill: parent
-                            onClicked:{
-                                explosion.parent = parent
-                                explosion.explode()
+                    delegate:Tile{
+                        idx: index
+                        x_pos: idx % 5
+                        y_pos: idx / 5
+                        lighting: model.cell
 
-                                model.cell = (model.cell) ? 0:1
-
-                                let m_col = model.index  % 5
-                                let m_row = Math.floor(model.index / 5 )
-                                let m_index;
-                                if ( m_col-1 >=0){
-                                    m_index = (m_col-1) + (m_row *5 )
-                                    levelsModel.setProperty(m_index, "cell", model.cell & 1)
-                                }
-                                moves ++;
-
-                            }
+                        onClicked:{
+                            explosion.parent = this
+                            explosion.explode()
+                            moves ++
+                            model.cell = (model.cell) ? 0 : 1
+                            clickOnTile(x_pos,y_pos)
+                            checkWinLostState()
                         }
-                    }
-                    Component.onCompleted: {
-                        AppSingleton.toLog(`Repeater model ${model.count}`)
                     }
                 }
             }
-
+        }
+        Item {
+            // spacer item
+            Layout.fillHeight: true
+            Layout.fillWidth: true
+        }
+        ProportionalRect{
+            id:debugGrid
+            Layout.fillWidth: true
+            Layout.preferredHeight: 42 * DevicePixelRatio
+            Layout.alignment:  Qt.AlignHCenter
+            GridView {
+                id:grid
+                anchors.fill: parent
+                anchors.leftMargin: 24 * DevicePixelRatio
+                cellWidth: grid.width/5       // if you want 2 columns for example
+                cellHeight: grid.height/5     //
+                model: levelsModel
+                delegate: Column {
+                    Text { text: cell; anchors.horizontalCenter: parent.horizontalCenter }
+                }
+            }
         }
         Item {
             // spacer item
@@ -236,6 +228,10 @@ QQC2.Page {
         }
     }
 
+    onWinStateChanged: {
+        console.trace()
+        winAnim.restart()
+    }
     //-------------
     // ----- Qt provided non-visual children
 
@@ -244,6 +240,71 @@ QQC2.Page {
     }
     Explosion {
         id: explosion
+    }
+
+    ParallelAnimation {
+        id:winAnim
+        PauseAnimation {
+            duration: AppSingleton.timer200
+        }
+        ScriptAction { script: clearAll(); }
+    }
+
+    function test( model){
+        console.log(`arguments ${arguments}, model ${model}`)
+    }
+
+    function clickOnTile(x_pos,y_pos){
+
+        let m_index = -1
+        let m_value
+
+        if ( (x_pos - 1) >= 0 ){
+            m_index = (x_pos - 1) + (y_pos *5)
+            m_value = (levelsModel.get(m_index).cell) ? 0 : 1
+            levelsModel.setProperty(m_index, "cell", m_value)
+        }
+
+        if ( (x_pos + 1) < 5 ){
+            m_index = (x_pos + 1) + (y_pos *5)
+            m_value = (levelsModel.get(m_index).cell) ? 0 : 1
+            levelsModel.setProperty(m_index, "cell", m_value)
+        }
+
+        if ( (y_pos - 1) >= 0 ){
+            m_index = x_pos + ( (y_pos - 1) *5)
+            m_value = (levelsModel.get(m_index).cell) ? 0 : 1
+            levelsModel.setProperty(m_index, "cell", m_value)
+        }
+
+        if ( (y_pos + 1) < 5 ){
+            m_index = x_pos + ( (y_pos + 1) *5)
+            m_value = (levelsModel.get(m_index).cell) ? 0 : 1
+            levelsModel.setProperty(m_index, "cell", m_value)
+        }
+    }
+
+    function checkWinLostState(){
+        let flag= false
+
+        for( var i = 0; i < levelsModel.rowCount(); i++ ) {
+            flag = flag || levelsModel.get(i).cell ;
+        }
+
+        root.winState = !flag
+        if (isDebugMode){
+            AppSingleton.toLog(
+                        `winState: [${winState}]`)
+            for( var j = 0; j < levelsModel.rowCount(); j++ ) {
+                AppSingleton.toLog(`Cell ${levelsModel.get(j).cell}`)
+            }
+        }
+    }
+
+    function clearAll(){
+        for( var i = 0; i < levelsModel.rowCount(); i++ ) {
+            levelsModel.setProperty(i, "cell", 0)
+        }
     }
 
 }
