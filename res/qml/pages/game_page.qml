@@ -197,7 +197,28 @@ QQC2.Page {
                 }
             }
         }
-
+        Item {
+            // spacer item
+            Layout.fillHeight: true
+            Layout.fillWidth: true
+        }
+        ProportionalRect{
+            id:debugGrid
+            Layout.fillWidth: true
+            Layout.preferredHeight: 42 * DevicePixelRatio
+            Layout.alignment:  Qt.AlignHCenter
+            GridView {
+                id:grid
+                anchors.fill: parent
+                anchors.leftMargin: 24 * DevicePixelRatio
+                cellWidth: grid.width/5       // if you want 2 columns for example
+                cellHeight: grid.height/5     //
+                model: levelsModel
+                delegate: Column {
+                    Text { text: cell; anchors.horizontalCenter: parent.horizontalCenter }
+                }
+            }
+        }
         Item {
             // spacer item
             Layout.fillHeight: true
