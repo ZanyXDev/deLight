@@ -21,6 +21,7 @@ QQC2.Page {
     property int currentLevel: 0
     property int moves: 0
     property int score: 0
+    property bool winState: false
 
     // ----- Signal declarations
     // ----- Size information
@@ -35,6 +36,7 @@ QQC2.Page {
     }
     Component.onCompleted: {
         AppSingleton.toLog(`GamePage [${root.height}h,${root.width}w]`)
+        test(levelsModel)
     }
 
     //-------------
@@ -53,7 +55,6 @@ QQC2.Page {
             padding: 2 * DevicePixelRatio
             color:"black"
         }
-
 
         ProportionalRect {
             id:boxMoveScore
@@ -162,9 +163,9 @@ QQC2.Page {
                 }
             }
         }
-
         ProportionalRect{
             id:gameGridRectangle
+            enabled: !winState
             Layout.fillWidth: true
             Layout.preferredHeight: 262 * DevicePixelRatio
             Layout.alignment:  Qt.AlignHCenter
@@ -192,6 +193,7 @@ QQC2.Page {
                             moves ++
                             model.cell = (model.cell) ? 0 : 1
                             clickOnTile(x_pos,y_pos)
+                            checkWinLostState()
                         }
                     }
                 }
@@ -226,7 +228,10 @@ QQC2.Page {
         }
     }
 
-
+    onWinStateChanged: {
+        console.trace()
+        winAnim.restart()
+    }
     //-------------
     // ----- Qt provided non-visual children
 
@@ -237,8 +242,20 @@ QQC2.Page {
         id: explosion
     }
 
+    ParallelAnimation {
+        id:winAnim
+        PauseAnimation {
+            duration: AppSingleton.timer200
+        }
+        ScriptAction { script: clearAll(); }
+    }
+
+    function test( model){
+        console.log(`arguments ${arguments}, model ${model}`)
+    }
 
     function clickOnTile(x_pos,y_pos){
+
         let m_index = -1
         let m_value
 
@@ -263,7 +280,31 @@ QQC2.Page {
         if ( (y_pos + 1) < 5 ){
             m_index = x_pos + ( (y_pos + 1) *5)
             m_value = (levelsModel.get(m_index).cell) ? 0 : 1
-           levelsModel.setProperty(m_index, "cell", m_value)
+            levelsModel.setProperty(m_index, "cell", m_value)
         }
     }
+
+    function checkWinLostState(){
+        let flag= false
+
+        for( var i = 0; i < levelsModel.rowCount(); i++ ) {
+            flag = flag || levelsModel.get(i).cell ;
+        }
+
+        root.winState = !flag
+        if (isDebugMode){
+            AppSingleton.toLog(
+                        `winState: [${winState}]`)
+            for( var j = 0; j < levelsModel.rowCount(); j++ ) {
+                AppSingleton.toLog(`Cell ${levelsModel.get(j).cell}`)
+            }
+        }
+    }
+
+    function clearAll(){
+        for( var i = 0; i < levelsModel.rowCount(); i++ ) {
+            levelsModel.setProperty(i, "cell", 0)
+        }
+    }
+
 }
