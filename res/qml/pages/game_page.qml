@@ -23,6 +23,8 @@ QQC2.Page {
     property int score: 0
 
     // ----- Signal declarations
+    signal levelUp( int currentLevel )
+
     // ----- Size information
     // ----- Then comes the other properties. There's no predefined order to these.
     onCurrentLevelChanged: {
@@ -30,6 +32,8 @@ QQC2.Page {
             AppSingleton.toLog(`onCurrentLevelChanged ${currentLevel}`)
         }
         currentLevel= ((currentLevel > 1) && (currentLevel < 51)) ? currentLevel : 1
+        Logic.fillModelFromLevel(levelsModel,workModel,currentLevel)
+        root.levelUp( currentLevel )
     }
 
     onPageActiveChanged: {
