@@ -14,11 +14,21 @@ function getRandomBgrImage(last) {
     return "qrc:/res/images/backgrounds/bgr" + bgrStr + ".jpg"
 }
 
-function fillModelFromLevel(m_srcModel,m_dstModel,m_level){    
+function addEmptyCell( m_model ){
+    m_model.clear()
+    for( var i = 0; i < 25; i++ ) {
+        m_model.append({"cell":0})
+    }
+}
+function fillModelFromLevel(m_srcModel,m_dstModel,m_level){
+    let abs_index
+
     addEmptyCell(m_dstModel)
     for( var i = 0; i < m_srcModel.rowCount(); i++ ) {
         if ( m_srcModel.get(i).lvl === m_level){
-            m_dstModel.setProperty(i, "cell", m_srcModel.get(i).cell)
+            abs_index = i % 25
+            console.log(`abs_index ${abs_index % 25}: m_srcModel.get(i).lvl ${m_srcModel.get(i).lvl} m_srcModel.get(i).cell ${m_srcModel.get(i).cell} `)
+            m_dstModel.setProperty(abs_index, "cell", m_srcModel.get(i).cell)
         }
     }  
 }
@@ -58,12 +68,7 @@ function clearAll( m_model ){
         m_model.setProperty(i, "cell", 0)
     }
 }
-function addEmptyCell( m_model ){
-    m_model.clear()
-    for( var i = 0; i < 25; i++ ) {
-        m_model.append({"cell":0})
-    }
-}
+
 function isWinGame( m_model ){
     let flag= false
 
