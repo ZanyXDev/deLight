@@ -1,0 +1,3 @@
+module datamodels
+CellDataModel 1.0 cell_datamodel.qml
+LevelsDataModel 1.0 levels_datamodel.qml
