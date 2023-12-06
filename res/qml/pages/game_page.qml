@@ -18,25 +18,35 @@ QQC2.Page {
     // https://doc.qt.io/qt-5/qtqml-syntax-objectattributes.html#a-note-about-accessing-attached-properties-and-signal-handlers
     property bool pageActive: false
 
-    property int currentLevel: 0
+    property int currentLevel: 1
     property int moves: 0
     property int score: 0
-    property bool winState: false
 
     // ----- Signal declarations
+    signal levelUp( int currentLevel )
+
     // ----- Size information
     // ----- Then comes the other properties. There's no predefined order to these.
+    onCurrentLevelChanged: {
+        if (isDebugMode){
+            AppSingleton.toLog(`onCurrentLevelChanged ${currentLevel}`)
+        }
+        currentLevel= ((currentLevel > 1) && (currentLevel < 51)) ? currentLevel : 1
+        Logic.fillModelFromLevel(levelsModel,workModel,currentLevel)
+        root.levelUp( currentLevel )
+    }
+
     onPageActiveChanged: {
-        AppSingleton.toLog(`GamePage.onActivated pageActive ${pageActive}`)
-        //gameTicTimer.restart()
+        if (isDebugMode){
+            AppSingleton.toLog(`GamePage.onActivated pageActive ${pageActive}`)
+        }
     }
     // ----- Visual children.
     background: {
         null
     }
     Component.onCompleted: {
-        AppSingleton.toLog(`GamePage [${root.height}h,${root.width}w]`)
-        test(levelsModel)
+        Logic.fillModelFromLevel(levelsModel,workModel,currentLevel)
     }
 
     //-------------
@@ -139,21 +149,22 @@ QQC2.Page {
                 BaseButton{
                     id:newGameButton
                     Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
-                    Layout.preferredWidth:  64 * DevicePixelRatio
+                    Layout.preferredWidth:  72 * DevicePixelRatio
                     Layout.preferredHeight: 24 * DevicePixelRatio
-                    text: "New"
+                    text: qsTr("NEW_TR")
                     onClicked: {
-
+                        Logic.fillModelFromLevel(levelsModel,workModel,currentLevel)
                     }
                 }
                 BaseButton{
                     id:restartGameButton
+                    visible: false
                     Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
                     Layout.preferredWidth:  64 * DevicePixelRatio
                     Layout.preferredHeight: 24 * DevicePixelRatio
-                    text: "Restart"
+                    text: qsTr("SELECT_VAL")
                     onClicked: {
-                        explosion.explode()
+
                     }
                 }
                 Item {
@@ -165,7 +176,7 @@ QQC2.Page {
         }
         ProportionalRect{
             id:gameGridRectangle
-            enabled: !winState
+
             Layout.fillWidth: true
             Layout.preferredHeight: 262 * DevicePixelRatio
             Layout.alignment:  Qt.AlignHCenter
@@ -180,7 +191,7 @@ QQC2.Page {
                 rowSpacing: 8*DevicePixelRatio
 
                 Repeater {
-                    model:levelsModel
+                    model:workModel
                     delegate:Tile{
                         idx: index
                         x_pos: idx % 5
@@ -192,8 +203,10 @@ QQC2.Page {
                             explosion.explode()
                             moves ++
                             model.cell = (model.cell) ? 0 : 1
-                            clickOnTile(x_pos,y_pos)
-                            checkWinLostState()
+                            Logic.clickOnTile(workModel,x_pos,y_pos)
+                            if ( Logic.isWinGame(workModel) ){
+                                currentLevel++
+                            }
                         }
                     }
                 }
@@ -215,7 +228,7 @@ QQC2.Page {
                 anchors.leftMargin: 24 * DevicePixelRatio
                 cellWidth: grid.width/5       // if you want 2 columns for example
                 cellHeight: grid.height/5     //
-                model: levelsModel
+                model: workModel
                 delegate: Column {
                     Text { text: cell; anchors.horizontalCenter: parent.horizontalCenter }
                 }
@@ -228,15 +241,14 @@ QQC2.Page {
         }
     }
 
-    onWinStateChanged: {
-        console.trace()
-        winAnim.restart()
-    }
     //-------------
     // ----- Qt provided non-visual children
 
     LevelsDataModel{
         id:levelsModel
+    }
+    ListModel{
+        id:workModel
     }
     Explosion {
         id: explosion
@@ -248,63 +260,6 @@ QQC2.Page {
             duration: AppSingleton.timer200
         }
         ScriptAction { script: clearAll(); }
-    }
-
-    function test( model){
-        console.log(`arguments ${arguments}, model ${model}`)
-    }
-
-    function clickOnTile(x_pos,y_pos){
-
-        let m_index = -1
-        let m_value
-
-        if ( (x_pos - 1) >= 0 ){
-            m_index = (x_pos - 1) + (y_pos *5)
-            m_value = (levelsModel.get(m_index).cell) ? 0 : 1
-            levelsModel.setProperty(m_index, "cell", m_value)
-        }
-
-        if ( (x_pos + 1) < 5 ){
-            m_index = (x_pos + 1) + (y_pos *5)
-            m_value = (levelsModel.get(m_index).cell) ? 0 : 1
-            levelsModel.setProperty(m_index, "cell", m_value)
-        }
-
-        if ( (y_pos - 1) >= 0 ){
-            m_index = x_pos + ( (y_pos - 1) *5)
-            m_value = (levelsModel.get(m_index).cell) ? 0 : 1
-            levelsModel.setProperty(m_index, "cell", m_value)
-        }
-
-        if ( (y_pos + 1) < 5 ){
-            m_index = x_pos + ( (y_pos + 1) *5)
-            m_value = (levelsModel.get(m_index).cell) ? 0 : 1
-            levelsModel.setProperty(m_index, "cell", m_value)
-        }
-    }
-
-    function checkWinLostState(){
-        let flag= false
-
-        for( var i = 0; i < levelsModel.rowCount(); i++ ) {
-            flag = flag || levelsModel.get(i).cell ;
-        }
-
-        root.winState = !flag
-        if (isDebugMode){
-            AppSingleton.toLog(
-                        `winState: [${winState}]`)
-            for( var j = 0; j < levelsModel.rowCount(); j++ ) {
-                AppSingleton.toLog(`Cell ${levelsModel.get(j).cell}`)
-            }
-        }
-    }
-
-    function clearAll(){
-        for( var i = 0; i < levelsModel.rowCount(); i++ ) {
-            levelsModel.setProperty(i, "cell", 0)
-        }
     }
 
 }

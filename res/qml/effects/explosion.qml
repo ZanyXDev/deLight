@@ -58,7 +58,7 @@ Item {
             targetX: target.width/2;
             targetY: 0;
             targetVariation: target.width/2;
-            magnitude: parent.height/3;
+            magnitude: 32
         }
 
     }

@@ -55,10 +55,15 @@ QQC2.ApplicationWindow {
     }
 
     Component.onDestruction: {
-        var bgrIndex = mSettings.currentBgrIndex
+        let bgrIndex = mSettings.currentBgrIndex
         bgrIndex++
         mSettings.currentBgrIndex = (bgrIndex < 20) ? bgrIndex : 0
+        mSettings.currentLevelId = gamePage.currentLevel
+        if (isDebugMode)
+            AppSingleton.toLog(`currentLevel: [${gamePage.currentLevel} ]`)
+
     }
+
     onAppInForegroundChanged: {
         if (appInForeground) {
             if (!appInitialized) {
@@ -84,13 +89,16 @@ QQC2.ApplicationWindow {
     FadeStackLayout {
         id: fadeLayout
 
-        GamePage {}
+        GamePage {
+            id:gamePage
+        }
     }
     //  ----- non visual children
     Settings {
         id: mSettings
-        category: "BackgroundItem"
-        property int currentBgrIndex
+        category: "Settings"
+        property int currentBgrIndex     
+        property alias currentLevelId: gamePage.currentLevel
     }
 
     Timer {
