@@ -21,6 +21,7 @@ QQC2.Page {
     property int currentLevel: 1
     property int moves: 0
     property int score: 0
+    property var animateFuncs: ([ ])
 
     // ----- Signal declarations
     signal levelUp( int currentLevel )
@@ -157,14 +158,20 @@ QQC2.Page {
                     }
                 }
                 BaseButton{
-                    id:restartGameButton
-                    visible: false
+                    id:testButton
+
                     Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
                     Layout.preferredWidth:  64 * DevicePixelRatio
                     Layout.preferredHeight: 24 * DevicePixelRatio
-                    text: qsTr("SELECT_VAL")
+                    text: qsTr("TST_ANI")
                     onClicked: {
-
+                        Logic.clearAll(workModel)
+                        let pick = Math.floor(Math.random() * 6);
+                        animateFuncs[pick](0);
+                        animateFuncs[pick+1](300);
+                        animateFuncs[pick+2](600);
+                        animateFuncs[pick+3](900);
+                        animateFuncs[pick+4](1200);
                     }
                 }
                 Item {
@@ -183,6 +190,8 @@ QQC2.Page {
 
             GridLayout{
                 id:gameGridLayout
+
+
                 anchors.fill: parent
                 anchors.leftMargin: 8 * DevicePixelRatio
 
@@ -193,6 +202,7 @@ QQC2.Page {
                 Repeater {
                     model:workModel
                     delegate:Tile{
+                        id :_rect
                         idx: index
                         x_pos: idx % 5
                         y_pos: idx / 5
@@ -207,6 +217,30 @@ QQC2.Page {
                             if ( Logic.isWinGame(workModel) ){
                                 currentLevel++
                             }
+                        }
+                        SequentialAnimation {
+                            id: anim
+                            property int delay
+                            PauseAnimation {duration: anim.delay}
+                            NumberAnimation {
+                                target: _rect
+                                property: "height"
+                                from: 50
+                                to: 150
+                            }
+                            NumberAnimation {
+                                target: _rect
+                                property: "height"
+                                from: 150
+                                to: 50
+                            }
+                        }
+                        function animateWithDelay(delay) {
+                            anim.delay = delay;
+                            anim.start();
+                        }
+                        Component.onCompleted: {
+                            animateFuncs[index] = animateWithDelay
                         }
                     }
                 }
