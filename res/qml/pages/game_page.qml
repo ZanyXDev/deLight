@@ -218,26 +218,12 @@ QQC2.Page {
                                 currentLevel++
                             }
                         }
-                        SequentialAnimation {
-                            id: anim
-                            property int delay
-                            PauseAnimation {duration: anim.delay}
-                            NumberAnimation {
-                                target: _rect
-                                property: "height"
-                                from: 50
-                                to: 150
-                            }
-                            NumberAnimation {
-                                target: _rect
-                                property: "height"
-                                from: 150
-                                to: 50
-                            }
-                        }
+
                         function animateWithDelay(delay) {
-                            anim.delay = delay;
-                            anim.start();
+                            _rect.delay = delay;
+                            //_rect.color ="green"
+                            _rect.snailAnimation.start();
+
                         }
                         Component.onCompleted: {
                             animateFuncs[index] = animateWithDelay
