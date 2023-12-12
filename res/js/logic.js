@@ -17,20 +17,23 @@ function getRandomBgrImage(last) {
 function addEmptyCell( m_model ){
     m_model.clear()
     for( var i = 0; i < 25; i++ ) {
-        m_model.append({"cell":0})
+        m_model.append({"cell":0,"delay":0})
     }
 }
-function fillModelFromLevel(m_srcModel,m_dstModel,m_level){
+function fillModelFromLevel(m_srcModel,m_dstModel,m_level,m_effectModel,m_effectType){
     let abs_index
-
+    let effect_index = m_effectType * 25
+    let m_delay
     addEmptyCell(m_dstModel)
+
     for( var i = 0; i < m_srcModel.rowCount(); i++ ) {
         if ( m_srcModel.get(i).lvl === m_level){
             abs_index = i % 25
-            console.log(`abs_index ${abs_index % 25}: m_srcModel.get(i).lvl ${m_srcModel.get(i).lvl} m_srcModel.get(i).cell ${m_srcModel.get(i).cell} `)
+            m_delay =  m_effectModel.get( abs_index + effect_index).cell_in_effect
             m_dstModel.setProperty(abs_index, "cell", m_srcModel.get(i).cell)
+            m_dstModel.setProperty(abs_index, "delay", m_delay * 200)
         }
-    }  
+    }
 }
 
 function clickOnTile( m_model, x_pos,y_pos ){

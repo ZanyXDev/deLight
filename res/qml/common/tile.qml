@@ -7,13 +7,13 @@ import common 1.0
 Rectangle {
     id:root
 
-    property int idx:  -1
+    property int idx
     property int x_pos: 0
     property int y_pos: 0
+    property int delay
     property bool isPressed: mouseArea.pressed
     property bool lighting: false
-    property alias snailAnimation:_anim
-    property int delay
+    property bool startAimation: false
 
     height: 48 * DevicePixelRatio
     width: 48 * DevicePixelRatio
@@ -23,6 +23,11 @@ Rectangle {
     smooth: true
     signal clicked
 
+    onStartAimationChanged: {
+
+        (startAimation) ? _anim.restart() :_anim.stop()
+    }
+
     color:  lighting ? "steelblue": "black"
 
     Behavior on radius {
@@ -31,8 +36,6 @@ Rectangle {
             duration: AppSingleton.timer500
         }
     }
-
-
 
     MouseArea{
         id:mouseArea

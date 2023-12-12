@@ -21,8 +21,8 @@ QQC2.Page {
     property int currentLevel: 1
     property int moves: 0
     property int score: 0
-    property var animateFuncs: ([ ])
-
+    property int effectType: 0 // TODO save to setting and random select
+    property bool gameWin: false
     // ----- Signal declarations
     signal levelUp( int currentLevel )
 
@@ -33,7 +33,7 @@ QQC2.Page {
             AppSingleton.toLog(`onCurrentLevelChanged ${currentLevel}`)
         }
         currentLevel= ((currentLevel > 1) && (currentLevel < 51)) ? currentLevel : 1
-        Logic.fillModelFromLevel(levelsModel,workModel,currentLevel)
+        Logic.fillModelFromLevel(levelsModel,workModel,currentLevel,cellEffectModel,effectType)
         root.levelUp( currentLevel )
     }
 
@@ -47,7 +47,7 @@ QQC2.Page {
         null
     }
     Component.onCompleted: {
-        Logic.fillModelFromLevel(levelsModel,workModel,currentLevel)
+        Logic.fillModelFromLevel(levelsModel,workModel,currentLevel,cellEffectModel,effectType)
     }
 
     //-------------
@@ -154,7 +154,7 @@ QQC2.Page {
                     Layout.preferredHeight: 24 * DevicePixelRatio
                     text: qsTr("NEW_TR")
                     onClicked: {
-                        Logic.fillModelFromLevel(levelsModel,workModel,currentLevel)
+                         Logic.fillModelFromLevel(levelsModel,workModel,currentLevel,cellEffectModel,effectType)
                     }
                 }
                 BaseButton{
@@ -165,13 +165,7 @@ QQC2.Page {
                     Layout.preferredHeight: 24 * DevicePixelRatio
                     text: qsTr("TST_ANI")
                     onClicked: {
-                        Logic.clearAll(workModel)
-                        let pick = Math.floor(Math.random() * 6);
-                        animateFuncs[pick](0);
-                        animateFuncs[pick+1](300);
-                        animateFuncs[pick+2](600);
-                        animateFuncs[pick+3](900);
-                        animateFuncs[pick+4](1200);
+                        gameWin= true
                     }
                 }
                 Item {
@@ -190,8 +184,6 @@ QQC2.Page {
 
             GridLayout{
                 id:gameGridLayout
-
-
                 anchors.fill: parent
                 anchors.leftMargin: 8 * DevicePixelRatio
 
@@ -207,7 +199,8 @@ QQC2.Page {
                         x_pos: idx % 5
                         y_pos: idx / 5
                         lighting: model.cell
-
+                        startAimation: root.gameWin
+                        delay: model.delay
                         onClicked:{
                             explosion.parent = this
                             explosion.explode()
@@ -217,16 +210,6 @@ QQC2.Page {
                             if ( Logic.isWinGame(workModel) ){
                                 currentLevel++
                             }
-                        }
-
-                        function animateWithDelay(delay) {
-                            _rect.delay = delay;
-                            //_rect.color ="green"
-                            _rect.snailAnimation.start();
-
-                        }
-                        Component.onCompleted: {
-                            animateFuncs[index] = animateWithDelay
                         }
                     }
                 }
@@ -250,7 +233,8 @@ QQC2.Page {
                 cellHeight: grid.height/5     //
                 model: workModel
                 delegate: Column {
-                    Text { text: cell; anchors.horizontalCenter: parent.horizontalCenter }
+                    //Text { text: cell; anchors.horizontalCenter: parent.horizontalCenter }
+                     Text { text: delay; anchors.horizontalCenter: parent.horizontalCenter }
                 }
             }
         }
@@ -270,16 +254,11 @@ QQC2.Page {
     ListModel{
         id:workModel
     }
+    CellEffectsDataModel{
+        id:cellEffectModel
+    }
     Explosion {
         id: explosion
-    }
-
-    ParallelAnimation {
-        id:winAnim
-        PauseAnimation {
-            duration: AppSingleton.timer200
-        }
-        ScriptAction { script: clearAll(); }
     }
 
 }
