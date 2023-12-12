@@ -46,19 +46,30 @@ Rectangle {
     SequentialAnimation {
         id: _anim
 
+        PropertyAnimation {
+            target: root
+            property: "color"
+            to: "black"
+            duration: AppSingleton.timer100
+        }
+        PropertyAnimation {
+            target: root
+            property: "lighting"
+            to: false
+        }
         PauseAnimation {duration: root.delay}
         ScaleAnimator {
             target: root
             from: 1.0
             to: 0.5
-            duration: AppSingleton.timer200
+            duration: AppSingleton.timer100
         }
         ParallelAnimation{
             ScaleAnimator {
                 target: root
                 from: 0.5
                 to: 1.2
-                duration: AppSingleton.timer200
+                duration: AppSingleton.timer100
             }
             /**
               @link https://www.appsloveworld.com/cplus/100/156/animating-the-color-of-qml-rectangles-after-a-button-is-clicked
@@ -68,14 +79,14 @@ Rectangle {
                 property: "color"
                 from:"black"
                 to: "green"
-                duration: AppSingleton.timer200
+                duration: AppSingleton.timer100
             }
         }
         ScaleAnimator {
             target: root
-            from: 1.3
+            from: 1.2
             to: 1.0
-            duration: AppSingleton.timer200
+            duration: AppSingleton.timer100
         }
     }
 }
