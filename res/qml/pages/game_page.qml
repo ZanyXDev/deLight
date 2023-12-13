@@ -23,13 +23,20 @@ QQC2.Page {
     property int score: 0
     property int effectType: 0 // TODO save to setting and random select
     property bool gameWin: false
-    property int doAnimCell: AppSingleton.cellsCount
+
+    property int animCellCount
 
     // ----- Signal declarations
     signal levelUp( int currentLevel )
 
     // ----- Size information
     // ----- Then comes the other properties. There's no predefined order to these.
+    onAnimCellCountChanged: {
+        if (animCellCount === 0) {
+            gameWin = false
+            animCellCount = AppSingleton.cellsCount
+        }
+    }
     onCurrentLevelChanged: {
         if (isDebugMode){
             AppSingleton.toLog(`onCurrentLevelChanged ${currentLevel}`)
@@ -37,13 +44,6 @@ QQC2.Page {
         currentLevel= ((currentLevel > 1) && (currentLevel < 51)) ? currentLevel : 1
         Logic.fillModelFromLevel(levelsModel,workModel,currentLevel,cellEffectModel,effectType)
         root.levelUp( currentLevel )
-    }
-
-    onDoAnimCellChanged: {
-        if (doAnimCell === 0) {
-            gameWin = false
-            doAnimCell = AppSingleton.cellsCount
-        }
     }
 
     onPageActiveChanged: {
@@ -163,7 +163,7 @@ QQC2.Page {
                     Layout.preferredHeight: 24 * DevicePixelRatio
                     text: qsTr("NEW_TR")
                     onClicked: {
-                         Logic.fillModelFromLevel(levelsModel,workModel,currentLevel,cellEffectModel,effectType)
+                        Logic.fillModelFromLevel(levelsModel,workModel,currentLevel,cellEffectModel,effectType)
                     }
                 }
                 BaseButton{
@@ -174,7 +174,8 @@ QQC2.Page {
                     Layout.preferredHeight: 24 * DevicePixelRatio
                     text: qsTr("TST_ANI")
                     onClicked: {
-                        gameWin= true
+                        gameWin = true
+                        animCellCount = AppSingleton.cellsCount
                     }
                 }
                 Item {
@@ -220,6 +221,9 @@ QQC2.Page {
                                 currentLevel++
                             }
                         }
+                        onAnimationFinished: {
+                            root.animCellCount--
+                        }
                     }
                 }
             }
@@ -231,6 +235,7 @@ QQC2.Page {
         }
         ProportionalRect{
             id:debugGrid
+            visible: isDebugMode
             Layout.fillWidth: true
             Layout.preferredHeight: 42 * DevicePixelRatio
             Layout.alignment:  Qt.AlignHCenter
@@ -243,7 +248,7 @@ QQC2.Page {
                 model: workModel
                 delegate: Column {
                     //Text { text: cell; anchors.horizontalCenter: parent.horizontalCenter }
-                     Text { text: delay; anchors.horizontalCenter: parent.horizontalCenter }
+                    Text { text: delay; anchors.horizontalCenter: parent.horizontalCenter }
                 }
             }
         }
