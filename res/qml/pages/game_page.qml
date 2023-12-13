@@ -23,6 +23,8 @@ QQC2.Page {
     property int score: 0
     property int effectType: 0 // TODO save to setting and random select
     property bool gameWin: false
+    property int doAnimCell: AppSingleton.cellsCount
+
     // ----- Signal declarations
     signal levelUp( int currentLevel )
 
@@ -35,6 +37,13 @@ QQC2.Page {
         currentLevel= ((currentLevel > 1) && (currentLevel < 51)) ? currentLevel : 1
         Logic.fillModelFromLevel(levelsModel,workModel,currentLevel,cellEffectModel,effectType)
         root.levelUp( currentLevel )
+    }
+
+    onDoAnimCellChanged: {
+        if (doAnimCell === 0) {
+            gameWin = false
+            doAnimCell = AppSingleton.cellsCount
+        }
     }
 
     onPageActiveChanged: {

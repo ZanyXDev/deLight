@@ -1,5 +1,7 @@
 .pragma library
 
+let m_cellsCount = 25
+
 function getRandomBgrImage(last) {
     let rnd = last;
     while (rnd === last) {
@@ -16,19 +18,19 @@ function getRandomBgrImage(last) {
 
 function addEmptyCell( m_model ){
     m_model.clear()
-    for( var i = 0; i < 25; i++ ) {
+    for( var i = 0; i < m_cellsCount; i++ ) {
         m_model.append({"cell":0,"delay":0})
     }
 }
 function fillModelFromLevel(m_srcModel,m_dstModel,m_level,m_effectModel,m_effectType){
     let abs_index
-    let effect_index = m_effectType * 25
+    let effect_index = m_effectType * m_cellsCount
     let m_delay
     addEmptyCell(m_dstModel)
 
     for( var i = 0; i < m_srcModel.rowCount(); i++ ) {
         if ( m_srcModel.get(i).lvl === m_level){
-            abs_index = i % 25
+            abs_index = i % m_cellsCount
             m_delay =  m_effectModel.get( abs_index + effect_index).cell_in_effect
             m_dstModel.setProperty(abs_index, "cell", m_srcModel.get(i).cell)
             m_dstModel.setProperty(abs_index, "delay", m_delay * 200)

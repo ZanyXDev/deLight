@@ -10,6 +10,8 @@ QtObject {
     readonly property int smallFontSize: 12
     readonly property int tinyFontSize: 10
 
+    readonly property int cellsCount: 10
+
     property FontLoader gameFont: FontLoader {
         id: gameFont
         source: "qrc:/res/fonts/mailrays.ttf"
