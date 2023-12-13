@@ -21,7 +21,9 @@ Rectangle {
     border.width: 2* DevicePixelRatio
     radius: lighting ? 30 : 5
     smooth: true
+
     signal clicked
+    signal animationFinished
 
     onStartAimationChanged: {
 
@@ -90,6 +92,9 @@ Rectangle {
             from: 1.2
             to: 1.0
             duration: AppSingleton.timer100
+        }
+        onFinished: {
+            root.animationFinished()
         }
     }
 }
