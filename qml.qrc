@@ -10,9 +10,6 @@
         <file>res/qml/common/tile.qml</file>
         <file>res/qml/pages/qmldir</file>
         <file>res/qml/pages/game_page.qml</file>
-        <file>res/qml/datamodels/qmldir</file>
-        <file>res/qml/datamodels/cell_effects_dm.qml</file>
-        <file>res/qml/datamodels/levels_datamodel.qml</file>
         <file>res/qml/effects/qmldir</file>
         <file>res/qml/effects/explosion.qml</file>
     </qresource>
