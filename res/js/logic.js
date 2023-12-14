@@ -80,14 +80,15 @@ function getRandomBgrImage(last) {
     return "qrc:/res/images/backgrounds/bgr" + bgrStr + ".jpg"
 }
 
-function fillModelFromLevels(m_model,m_level,m_effectType){
+function fillModelFromLevels(m_model,m_level){
     let start_index = m_level * CELL_COUNT
-    let start_effect_index = m_effectType * CELL_COUNT
-    let m_delay = 0
     m_model.clear()
-    console.log(`m_model,m_level ${m_level},m_effectType ${m_effectType}`)
+
     for (let i= 0; i< CELL_COUNT;i++){
-        m_model.append({"cell":m_levels[start_index+i],"delay":m_effects[start_effect_index+i] * 300})
+        m_model.append({"cell":m_levels[start_index+i],
+                           "delayWin":m_effects[i] * 300,
+                           "delayLose":m_effects[CELL_COUNT+i] * 2000
+                       })
     }
 }
 
@@ -123,9 +124,9 @@ function clickOnTile( m_model, x_pos,y_pos ){
 
 function isWinGame( m_model ){
     for( var i = 0; i < m_model.rowCount(); i++ ) {
-       if (m_model.get(i).cell ===1 ){
-           return false
-       }
-    }    
+        if (m_model.get(i).cell ===1 ){
+            return false
+        }
+    }
     return true
 }

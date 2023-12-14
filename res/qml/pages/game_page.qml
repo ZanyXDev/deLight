@@ -20,10 +20,10 @@ QQC2.Page {
     property int currentLevel: 1
     property int moves: 0
     property int score: 0
-    property int effectType: 0 // TODO save to setting and random select
-    property bool gameWin: false
-
     property int animCellCount
+    property bool doTileAnimation: false
+    property bool statusWinLose: false
+
 
     // ----- Signal declarations
     signal levelUp( int currentLevel )
@@ -32,27 +32,34 @@ QQC2.Page {
     // ----- Then comes the other properties. There's no predefined order to these.
     onAnimCellCountChanged: {
         if (animCellCount === 0) {
-            gameWin = false
+
             animCellCount = AppSingleton.cellsCount
+            /// @note all cell animation finished
+            if (root.statusWinLose){
+                root.currentLevel++
+                root.levelUp( currentLevel )
+                root.statusWinLose = false
+            }
+            root.moves = 0
+            Logic.fillModelFromLevels( workModel,currentLevel )
         }
     }
     onCurrentLevelChanged: {
         currentLevel= ((currentLevel >= 0) && (currentLevel < 50)) ? currentLevel : 0
-        root.moves = 0
-        Logic.fillModelFromLevels( workModel,currentLevel,effectType )
-        root.levelUp( currentLevel )
     }
 
     onMovesChanged: {
-        console.log(`moves ${root.moves}`)
         if (moves >0){
-            let flag = Logic.isWinGame( workModel)
-
-            if ( flag ){
-                 console.log(`Logic.isWinGame( workModel) ${flag}`)
-                root.animCellCount = AppSingleton.cellsCount
-                root.currentLevel++
-                root.gameWin = true
+            if (moves < 99){
+                if ( Logic.isWinGame( workModel) ){
+                    root.animCellCount = AppSingleton.cellsCount
+                    root.doTileAnimation = true
+                    root.statusWinLose = true
+                }
+            }else{
+                /// start lose animation
+                root.statusWinLose = false
+                root.doTileAnimation = true
             }
         }
     }
@@ -66,7 +73,7 @@ QQC2.Page {
         null
     }
     Component.onCompleted: {
-        Logic.fillModelFromLevels( workModel,currentLevel,effectType )
+        Logic.fillModelFromLevels( workModel,currentLevel )
     }
 
     //-------------
@@ -173,7 +180,7 @@ QQC2.Page {
                     Layout.preferredHeight: 24 * DevicePixelRatio
                     text: qsTr("NEW_TR")
                     onClicked: {
-                        Logic.fillModelFromLevels(workModel,currentLevel,effectType)
+                        Logic.fillModelFromLevels(workModel,currentLevel)
                     }
                 }
                 BaseButton{
@@ -184,9 +191,7 @@ QQC2.Page {
                     Layout.preferredHeight: 24 * DevicePixelRatio
                     text: qsTr("TEST")
                     onClicked: {
-                        root.currentLevel++
-                        //gameWin = true
-                        //animCellCount = AppSingleton.cellsCount
+
                     }
                 }
                 Item {
@@ -220,8 +225,11 @@ QQC2.Page {
                         x_pos: idx % 5
                         y_pos: idx / 5
                         lighting: model.cell
-                        startAimation: root.gameWin
-                        delay: model.delay
+                        startAimation: root.doTileAnimation
+                        delayWin: model.delayWin
+                        delayLose: model.delayLose
+                        statusWinLose:root.statusWinLose
+
                         onClicked:{
                             explosion.parent = this
                             explosion.explode()

@@ -1,7 +1,6 @@
 import QtQuick 2.15
 import QtGraphicalEffects 1.0
 
-
 import common 1.0
 
 Rectangle {
@@ -10,10 +9,12 @@ Rectangle {
     property int idx
     property int x_pos: 0
     property int y_pos: 0
-    property int delay
+    property int delayWin
+    property int delayLose
     property bool isPressed: mouseArea.pressed
     property bool lighting: false
     property bool startAimation: false
+    property bool statusWinLose: false
 
     height: 48 * DevicePixelRatio
     width: 48 * DevicePixelRatio
@@ -26,7 +27,6 @@ Rectangle {
     signal animationFinished
 
     onStartAimationChanged: {
-
         (startAimation) ? _anim.restart() :_anim.stop()
     }
 
@@ -50,19 +50,21 @@ Rectangle {
 
     SequentialAnimation {
         id: _anim
-
+        PropertyAnimation {
+            target: root
+            property: "lighting"
+            to: false
+        }
         PropertyAnimation {
             target: root
             property: "color"
             to: "black"
             duration: AppSingleton.timer100
         }
-        PropertyAnimation {
-            target: root
-            property: "lighting"
-            to: false
+
+        PauseAnimation {
+            duration: (statusWinLose) ? root.delayWin : root.delayLose
         }
-        PauseAnimation {duration: root.delay}
         ScaleAnimator {
             target: root
             from: 1.0
@@ -83,19 +85,28 @@ Rectangle {
                 target: root
                 property: "color"
                 from:"black"
-                to: "green"
+                to: (statusWinLose) ? "green" :"darkorange"
                 duration: AppSingleton.timer100
             }
         }
-        ScaleAnimator {
-            target: root
-            from: 1.2
-            to: 1.0
-            duration: AppSingleton.timer100
+        ParallelAnimation{
+            ScaleAnimator {
+                target: root
+                from: 1.2
+                to: 1.0
+                duration: AppSingleton.timer100
+            }
+            PropertyAnimation {
+                target: root
+                property: "color"
+                from:(statusWinLose) ? "green" :"darkorange"
+                to: "black"
+                duration: AppSingleton.timer100
+            }
         }
         onFinished: {
             root.animationFinished()
         }
     }
-}
+  }
 
