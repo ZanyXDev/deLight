@@ -5,7 +5,6 @@ import QtGraphicalEffects 1.0
 
 
 import common 1.0
-import datamodels 1.0
 import effects 1.0
 
 import "qrc:/res/js/logic.js" as Logic
@@ -21,10 +20,10 @@ QQC2.Page {
     property int currentLevel: 1
     property int moves: 0
     property int score: 0
-    property int effectType: 0 // TODO save to setting and random select
-    property bool gameWin: false
-
     property int animCellCount
+    property bool doTileAnimation: false
+    property bool statusWinLose: false
+
 
     // ----- Signal declarations
     signal levelUp( int currentLevel )
@@ -33,19 +32,37 @@ QQC2.Page {
     // ----- Then comes the other properties. There's no predefined order to these.
     onAnimCellCountChanged: {
         if (animCellCount === 0) {
-            gameWin = false
+
             animCellCount = AppSingleton.cellsCount
+            /// @note all cell animation finished
+            if (root.statusWinLose){
+                root.currentLevel++
+                root.levelUp( currentLevel )
+                root.statusWinLose = false
+            }
+            root.moves = 0
+            Logic.fillModelFromLevels( workModel,currentLevel )
         }
     }
     onCurrentLevelChanged: {
-        if (isDebugMode){
-            AppSingleton.toLog(`onCurrentLevelChanged ${currentLevel}`)
-        }
-        currentLevel= ((currentLevel > 1) && (currentLevel < 51)) ? currentLevel : 1
-        Logic.fillModelFromLevel(levelsModel,workModel,currentLevel,cellEffectModel,effectType)
-        root.levelUp( currentLevel )
+        currentLevel= ((currentLevel >= 0) && (currentLevel < 50)) ? currentLevel : 0
     }
 
+    onMovesChanged: {
+        if (moves >0){
+            if (moves < 99){
+                if ( Logic.isWinGame( workModel) ){
+                    root.animCellCount = AppSingleton.cellsCount
+                    root.doTileAnimation = true
+                    root.statusWinLose = true
+                }
+            }else{
+                /// start lose animation
+                root.statusWinLose = false
+                root.doTileAnimation = true
+            }
+        }
+    }
     onPageActiveChanged: {
         if (isDebugMode){
             AppSingleton.toLog(`GamePage.onActivated pageActive ${pageActive}`)
@@ -56,7 +73,7 @@ QQC2.Page {
         null
     }
     Component.onCompleted: {
-        Logic.fillModelFromLevel(levelsModel,workModel,currentLevel,cellEffectModel,effectType)
+        Logic.fillModelFromLevels( workModel,currentLevel )
     }
 
     //-------------
@@ -124,13 +141,13 @@ QQC2.Page {
                     }
                 }
                 Item {
-                    id:scorePanel
+                    id:levelPanel
                     Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
                     Layout.preferredWidth:  72 * DevicePixelRatio
                     Layout.preferredHeight: 64 * DevicePixelRatio
                     opacity: 0.9
                     ColumnLayout {
-                        id:scoreBoxColLayout
+                        id:levelBoxColLayout
                         Item {
                             // spacer item
                             Layout.fillWidth: true
@@ -140,7 +157,7 @@ QQC2.Page {
                             id:textScore
                             Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
                             font.pointSize: AppSingleton.averageFontSize
-                            text:qsTr("Score")
+                            text:qsTr("Level")
                         }
                         Item {
                             // spacer item
@@ -148,10 +165,10 @@ QQC2.Page {
                             Layout.preferredHeight:  5 * DevicePixelRatio
                         }
                         InfoLabel {
-                            id:valueScore
+                            id:valueLevel
                             Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
                             font.pointSize: AppSingleton.middleFontSize
-                            text:score
+                            text:root.currentLevel + 1
                         }
                     }
                 }
@@ -163,7 +180,7 @@ QQC2.Page {
                     Layout.preferredHeight: 24 * DevicePixelRatio
                     text: qsTr("NEW_TR")
                     onClicked: {
-                        Logic.fillModelFromLevel(levelsModel,workModel,currentLevel,cellEffectModel,effectType)
+                        Logic.fillModelFromLevels(workModel,currentLevel)
                     }
                 }
                 BaseButton{
@@ -172,10 +189,9 @@ QQC2.Page {
                     Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
                     Layout.preferredWidth:  64 * DevicePixelRatio
                     Layout.preferredHeight: 24 * DevicePixelRatio
-                    text: qsTr("TST_ANI")
+                    text: qsTr("TEST")
                     onClicked: {
-                        gameWin = true
-                        animCellCount = AppSingleton.cellsCount
+
                     }
                 }
                 Item {
@@ -209,17 +225,17 @@ QQC2.Page {
                         x_pos: idx % 5
                         y_pos: idx / 5
                         lighting: model.cell
-                        startAimation: root.gameWin
-                        delay: model.delay
+                        startAimation: root.doTileAnimation
+                        delayWin: model.delayWin
+                        delayLose: model.delayLose
+                        statusWinLose:root.statusWinLose
+
                         onClicked:{
                             explosion.parent = this
                             explosion.explode()
-                            moves ++
                             model.cell = (model.cell) ? 0 : 1
                             Logic.clickOnTile(workModel,x_pos,y_pos)
-                            if ( Logic.isWinGame(workModel) ){
-                                currentLevel++
-                            }
+                            moves ++
                         }
                         onAnimationFinished: {
                             root.animCellCount--
@@ -247,8 +263,8 @@ QQC2.Page {
                 cellHeight: grid.height/5     //
                 model: workModel
                 delegate: Column {
-                    //Text { text: cell; anchors.horizontalCenter: parent.horizontalCenter }
-                    Text { text: delay; anchors.horizontalCenter: parent.horizontalCenter }
+                    Text { text: cell; anchors.horizontalCenter: parent.horizontalCenter }
+                    //Text { text: delay; anchors.horizontalCenter: parent.horizontalCenter }
                 }
             }
         }
@@ -261,18 +277,10 @@ QQC2.Page {
 
     //-------------
     // ----- Qt provided non-visual children
-
-    LevelsDataModel{
-        id:levelsModel
-    }
     ListModel{
         id:workModel
-    }
-    CellEffectsDataModel{
-        id:cellEffectModel
     }
     Explosion {
         id: explosion
     }
-
 }

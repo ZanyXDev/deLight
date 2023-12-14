@@ -1,3 +1,0 @@
-module datamodels
-CellEffectsDataModel 1.0 cell_effects_dm.qml
-LevelsDataModel 1.0 levels_datamodel.qml
