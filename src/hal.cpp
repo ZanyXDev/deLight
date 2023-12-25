@@ -57,7 +57,7 @@ double Hal::getDevicePixelRatio() const{
 #endif
 
 #ifdef QT_DEBUG
-    density = 320;
+    density = 240;
 #endif
     return   density >= 480 ? 3 :
                               density >= 320 ? 2 :
