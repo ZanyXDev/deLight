@@ -24,6 +24,8 @@
         <file>res/images/backgrounds/bgr19.jpg</file>
         <file>res/images/backgrounds/bgr20.jpg</file>
         <file>res/images/particle.png</file>
+        <file>res/images/play.svg</file>
+        <file>res/images/setup.svg</file>
     </qresource>
     <qresource prefix="/effects"/>
 </RCC>

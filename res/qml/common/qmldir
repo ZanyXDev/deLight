@@ -4,3 +4,6 @@ AppVersionTxt 1.0 app_ver_txt.qml
 FadeStackLayout 1.0 fade_stack_layout.qml
 BaseButton 1.0 basebutton.qml
 Tile 1.0 tile.qml
+MyDebugRect 1.0 mydebugrect.qml
+ImageButton 1.0 img_button.qml
+

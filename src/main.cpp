@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
     QScopedPointer<Hal> m_hal(new Hal);
     m_hal->createAppFolder();
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    QCoreApplication::setAttribute(Qt::AA_DisableHighDpiScaling);
 #endif
 
     QCoreApplication::setOrganizationName("ZanyXDev");

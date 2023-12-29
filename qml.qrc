@@ -8,6 +8,8 @@
         <file>res/qml/common/fade_stack_layout.qml</file>
         <file>res/qml/common/basebutton.qml</file>
         <file>res/qml/common/tile.qml</file>
+        <file>res/qml/common/mydebugrect.qml</file>
+        <file>res/qml/common/img_button.qml</file>
         <file>res/qml/pages/qmldir</file>
         <file>res/qml/pages/game_page.qml</file>
         <file>res/qml/effects/qmldir</file>

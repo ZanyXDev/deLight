@@ -12,119 +12,117 @@ import "qrc:/res/js/logic.js" as Logic
 import io.github.zanyxdev.delight 1.0
 
 QQC2.ApplicationWindow {
-    id: appWnd
-    // ----- Property Declarations
+  id: appWnd
+  // ----- Property Declarations
 
-    // Required properties should be at the top.
-    readonly property int screenOrientation: (isMobile) ? Screen.orientation : Qt.PortraitOrientation
-    readonly property bool appInForeground: Qt.application.state === Qt.ApplicationActive
-    readonly property real winScale: Math.min(width / 1280.0, height / 720.0)
-    property bool appInitialized: false
+  // Required properties should be at the top.
+  readonly property int screenOrientation: (isMobile) ? Screen.orientation : Qt.PortraitOrientation
+  readonly property bool appInForeground: Qt.application.state === Qt.ApplicationActive
+  readonly property real winScale: Math.min(width / 1280.0, height / 720.0)
+  property bool appInitialized: false
 
-    // ----- Signal declarations
-    signal screenOrientationUpdated(int screenOrientation)
+  // ----- Signal declarations
+  signal screenOrientationUpdated(int screenOrientation)
 
-    // ----- Size information
-    width: (screenOrientation === Qt.PortraitOrientation) ? 320 * DevicePixelRatio : 480
-                                                            * DevicePixelRatio
-    height: (screenOrientation === Qt.PortraitOrientation) ? 480 * DevicePixelRatio : 320
-                                                             * DevicePixelRatio
-    maximumHeight: height
-    maximumWidth: width
+  // ----- Size information
+  width: (screenOrientation === Qt.PortraitOrientation) ? 320 * DevicePixelRatio : 480
+                                                          * DevicePixelRatio
+  height: (screenOrientation === Qt.PortraitOrientation) ? 480 * DevicePixelRatio : 320
+                                                           * DevicePixelRatio
+  maximumHeight: height
+  maximumWidth: width
 
-    minimumHeight: height
-    minimumWidth: width
-    // ----- Then comes the other properties. There's no predefined order to these.
-    visible: true
-    visibility: (isMobile) ? Window.FullScreen : Window.Windowed
-    flags: Qt.Dialog
-    title: qsTr(" ")
-    //Screen.orientationUpdateMask: Qt.LandscapeOrientation
+  minimumHeight: height
+  minimumWidth: width
+  // ----- Then comes the other properties. There's no predefined order to these.
+  visible: true
+  visibility: (isMobile) ? Window.FullScreen : Window.Windowed
+  flags: Qt.Dialog
+  title: qsTr(" ")
+  //Screen.orientationUpdateMask: Qt.LandscapeOrientation
 
-    // ----- Then attached properties and attached signal handlers.
+  // ----- Then attached properties and attached signal handlers.
 
-    // ----- Signal handlers
-    onScreenOrientationChanged: {
-        screenOrientationUpdated(screenOrientation)
+  // ----- Signal handlers
+  onScreenOrientationChanged: {
+    screenOrientationUpdated(screenOrientation)
+  }
+  Component.onCompleted: {
+    AppSingleton.toLog(`DevicePixelRatio :[${DevicePixelRatio}]`)
+    timerT1.start()
+    AppSingleton.toLog(`Screen height ${height},width ${width}`)
+    ///TODO select level and fill Model
+  }
+
+  Component.onDestruction: {
+    let bgrIndex = mSettings.currentBgrIndex
+    bgrIndex++
+    mSettings.currentBgrIndex = (bgrIndex < 20) ? bgrIndex : 0
+    mSettings.currentLevelId = gamePage.currentLevel
+    if (isDebugMode)
+      AppSingleton.toLog(`currentLevel: [${gamePage.currentLevel} ]`)
+  }
+
+  onAppInForegroundChanged: {
+    if (appInForeground) {
+      if (!appInitialized) {
+        appInitialized = true
+      }
+    } else {
+      if (isDebugMode)
+        AppSingleton.toLog(
+              `appInForeground: [${appInForeground} , appInitialized: ${appInitialized}]`)
     }
-    Component.onCompleted: {
+  }
 
-        AppSingleton.toLog(`HAL.devicePixelRatio :[${HAL.devicePixelRatio}]`)
-        timerT1.start()
-        ///TODO select level and fill Model
+  background: Image {
+    id: background
+    anchors.fill: parent
+    source: Logic.getRandomBgrImage(mSettings.currentBgrIndex)
+    fillMode: Image.PreserveAspectCrop
+    opacity: 0.8
+  }
+
+  // ----- Visual children
+  FadeStackLayout {
+    id: fadeLayout
+
+    GamePage {
+      id: gamePage
     }
+  }
+  //  ----- non visual children
+  Settings {
+    id: mSettings
+    category: "Settings"
+    property int currentBgrIndex
+    property alias currentLevelId: gamePage.currentLevel
+  }
 
-    Component.onDestruction: {
-        let bgrIndex = mSettings.currentBgrIndex
-        bgrIndex++
-        mSettings.currentBgrIndex = (bgrIndex < 20) ? bgrIndex : 0
-        mSettings.currentLevelId = gamePage.currentLevel
-        if (isDebugMode)
-            AppSingleton.toLog(`currentLevel: [${gamePage.currentLevel} ]`)
+  Timer {
+    id: timerT1
+    interval: AppSingleton.timer2000
+    repeat: true
+    running: false
+    onTriggered: {
+      if (isDebugMode) {
 
-    }
+        // fadeLayout.currentIndex = 1
+      } else {
+        var idx = fadeLayout.currentIndex
 
-    onAppInForegroundChanged: {
-        if (appInForeground) {
-            if (!appInitialized) {
-                appInitialized = true
-            }
-        } else {
-            if (isDebugMode)
-                AppSingleton.toLog(
-                            `appInForeground: [${appInForeground} , appInitialized: ${appInitialized}]`)
+        if (idx < fadeLayout.count) {
+          idx++
         }
-    }
-
-    background: Image {
-        id: background
-        anchors.fill: parent
-        source: Logic.getRandomBgrImage( mSettings.currentBgrIndex )
-        fillMode: Image.PreserveAspectCrop
-        opacity: 0.8
-    }
-
-
-    // ----- Visual children
-    FadeStackLayout {
-        id: fadeLayout
-
-        GamePage {
-            id:gamePage
+        if (idx == fadeLayout.count) {
+          idx = 0
         }
+        fadeLayout.currentIndex = idx
+      }
     }
-    //  ----- non visual children
-    Settings {
-        id: mSettings
-        category: "Settings"
-        property int currentBgrIndex     
-        property alias currentLevelId: gamePage.currentLevel
-    }
+  }
 
-    Timer {
-        id: timerT1
-        interval: AppSingleton.timer2000
-        repeat: true
-        running: false
-        onTriggered: {
-            if (isDebugMode) {
-
-                // fadeLayout.currentIndex = 1
-            } else {
-                var idx = fadeLayout.currentIndex
-
-                if (idx < fadeLayout.count) {
-                    idx++
-                }
-                if (idx == fadeLayout.count) {
-                    idx = 0
-                }
-                fadeLayout.currentIndex = idx
-            }
-        }
-    }
-
-    // ----- JavaScript functions
+  // ----- JavaScript functions
 }
 
 /**
