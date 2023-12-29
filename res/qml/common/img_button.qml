@@ -10,6 +10,7 @@ Item {
   property alias sourceSize: img.sourceSize
   property alias verticalAlignment: img.verticalAlignment
   property alias horizontalAlignment: img.horizontalAlignment
+  property bool clockwise: false
 
 
   /**
@@ -105,7 +106,7 @@ Item {
       }
       RotationAnimation {
         duration: AppSingleton.timer200
-        direction: RotationAnimation.Counterclockwise
+        direction: (root.clockwise) ? RotationAnimation.Counterclockwise : RotationAnimation.Clockwise
       }
     }
   }
