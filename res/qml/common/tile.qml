@@ -10,6 +10,7 @@ Rectangle {
   property int y_pos: 0
   property int delayWin
   property int delayLose
+  property bool isWin: false
   property bool isPressed: mouseArea.pressed
 
   height: 48 * DevicePixelRatio
@@ -19,6 +20,7 @@ Rectangle {
   smooth: true
 
   signal clicked
+  signal animationFinished()
 
   MouseArea {
     id: mouseArea
@@ -29,68 +31,6 @@ Rectangle {
     onClicked: root.clicked()
   }
 
-  SequentialAnimation {
-    id: _anim
-    PropertyAnimation {
-      target: root
-      property: "lighting"
-      to: false
-    }
-    PropertyAnimation {
-      target: root
-      property: "color"
-      to: "black"
-      duration: AppSingleton.timer100
-    }
-
-    PauseAnimation {
-      duration: (statusWinLose) ? root.delayWin : root.delayLose
-    }
-    ScaleAnimator {
-      target: root
-      from: 1.0
-      to: 0.5
-      duration: AppSingleton.timer100
-    }
-    ParallelAnimation {
-      ScaleAnimator {
-        target: root
-        from: 0.5
-        to: 1.2
-        duration: AppSingleton.timer100
-      }
-
-
-      /**
-              @link https://www.appsloveworld.com/cplus/100/156/animating-the-color-of-qml-rectangles-after-a-button-is-clicked
-            */
-      PropertyAnimation {
-        target: root
-        property: "color"
-        from: "black"
-        to: (statusWinLose) ? "green" : "darkorange"
-        duration: AppSingleton.timer100
-      }
-    }
-    ParallelAnimation {
-      ScaleAnimator {
-        target: root
-        from: 1.2
-        to: 1.0
-        duration: AppSingleton.timer100
-      }
-      PropertyAnimation {
-        target: root
-        property: "color"
-        from: (statusWinLose) ? "green" : "darkorange"
-        to: "black"
-        duration: AppSingleton.timer100
-      }
-    }
-    onFinished: {
-      root.animationFinished()
-    }
-  }
   state: "lightOFF"
   states: [
     State {
@@ -99,7 +39,7 @@ Rectangle {
         target: root
         color: "steelblue"
         border.color: "black"
-        radius: 30
+        radius: 32
       }
     },
     State {
@@ -108,29 +48,64 @@ Rectangle {
         target: root
         color: "black"
         border.color: "steelblue"
-        radius: 5
+        radius: 8
+      }
+    },
+    State {
+      name: "lightBLK"
+      PropertyChanges { target: root; scale: 1.2 }
+      PropertyChanges {
+        target: root
+        color: root.isWin ? "darkgreen": "darkred"
+        border.color: "darkgrey"
+        radius: 8
+      }
+      StateChangeScript{
+        name: "changeStateScript"
+        script: {
+         // root.state = "lightOFF"
+        }
       }
     }
   ]
-  transitions: Transition {
-    to: "lightON"
-    reversible: true
-    ParallelAnimation {
-      ColorAnimation {
-        property: "color"
-
-        duration: AppSingleton.timer500
+  transitions:[
+    Transition {
+      to: "lightON"
+      reversible: true
+      ParallelAnimation {
+        ColorAnimation { property: "color"; duration: AppSingleton.timer500 }
+        ColorAnimation { property: "border.color"; duration: AppSingleton.timer500 }
+        NumberAnimation {
+          property: "radius"
+          easing.type: Easing.InOutCubic
+          duration: AppSingleton.timer500
+        }
       }
-      ColorAnimation {
-        property: "border.color"
-
-        duration: AppSingleton.timer500
-      }
-      NumberAnimation {
-        property: "radius"
-        easing.type: Easing.InOutCubic
-        duration: AppSingleton.timer500
+    },
+    Transition {
+      to: "lightBLK"
+      SequentialAnimation{
+        PauseAnimation {
+          duration: (root.isWin) ? root.delayWin : root.delayLose
+        }
+        ParallelAnimation {
+          NumberAnimation {
+            property: "scale"
+            duration: AppSingleton.timer200
+            easing.type: Easing.InOutBounce
+          }
+          ColorAnimation { property: "color"; duration: AppSingleton.timer500 }
+          ColorAnimation { property: "border.color"; duration: AppSingleton.timer500 }
+          NumberAnimation {
+            property: "radius"
+            easing.type: Easing.InOutCubic
+            duration: AppSingleton.timer500
+          }
+        }
+        onFinished: {
+          root.animationFinished( )
+        }
       }
     }
-  }
+  ]
 }

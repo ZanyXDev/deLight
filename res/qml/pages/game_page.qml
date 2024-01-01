@@ -52,13 +52,12 @@ QQC2.Page {
       if (moves < 99) {
         if (Logic.isWinGame(workModel)) {
           root.animCellCount = AppSingleton.cellsCount
-          root.doTileAnimation = true
+           Logic.fillModelState(workModel)
           root.statusWinLose = true
         }
       } else {
         /// start lose animation
         root.statusWinLose = false
-        root.doTileAnimation = true
       }
     }
   }
@@ -195,7 +194,7 @@ QQC2.Page {
             sourceSize.height: height
             clockwise: true
             onClicked: {
-
+              workModel.setProperty(13, "state","lightBLK")
               //Logic.fillModelFromLevels(workModel, currentLevel)
             }
           }
@@ -261,12 +260,12 @@ QQC2.Page {
             idx: index
             x_pos: idx % 5
             y_pos: idx / 5
-            state: (model.cell) ? "lightON" : "lightOFF"
-            //startAimation: root.doTileAnimation
+            state: model.state
+
             delayWin: model.delayWin
             delayLose: model.delayLose
 
-            //statusWinLose: root.statusWinLose
+            isWin: root.statusWinLose
             onClicked: {
               explosion.parent = this
               explosion.explode()
@@ -274,9 +273,9 @@ QQC2.Page {
               Logic.clickOnTile(workModel, x_pos, y_pos)
               moves++
             }
-            //            onAnimationFinished: {
-            //              root.animCellCount--
-            //            }
+            onAnimationFinished: {
+              root.animCellCount--
+            }
           }
         }
       }
