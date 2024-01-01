@@ -1,6 +1,5 @@
 import QtQuick 2.15
 import QtGraphicalEffects 1.0
-
 import common 1.0
 
 Rectangle {
@@ -12,32 +11,14 @@ Rectangle {
   property int delayWin
   property int delayLose
   property bool isPressed: mouseArea.pressed
-  property bool lighting: false
-  property bool startAimation: false
-  property bool statusWinLose: false
 
   height: 48 * DevicePixelRatio
   width: 48 * DevicePixelRatio
-  border.color: lighting ? "black" : "steelblue"
+
   border.width: 2 * DevicePixelRatio
-  radius: lighting ? 30 : 5
   smooth: true
 
   signal clicked
-  signal animationFinished
-
-  onStartAimationChanged: {
-    (startAimation) ? _anim.restart() : _anim.stop()
-  }
-
-  color: lighting ? "steelblue" : "black"
-
-  Behavior on radius {
-    NumberAnimation {
-      easing.type: Easing.InOutCubic
-      duration: AppSingleton.timer500
-    }
-  }
 
   MouseArea {
     id: mouseArea
@@ -79,6 +60,7 @@ Rectangle {
         duration: AppSingleton.timer100
       }
 
+
       /**
               @link https://www.appsloveworld.com/cplus/100/156/animating-the-color-of-qml-rectangles-after-a-button-is-clicked
             */
@@ -107,6 +89,48 @@ Rectangle {
     }
     onFinished: {
       root.animationFinished()
+    }
+  }
+  state: "lightOFF"
+  states: [
+    State {
+      name: "lightON"
+      PropertyChanges {
+        target: root
+        color: "steelblue"
+        border.color: "black"
+        radius: 30
+      }
+    },
+    State {
+      name: "lightOFF"
+      PropertyChanges {
+        target: root
+        color: "black"
+        border.color: "steelblue"
+        radius: 5
+      }
+    }
+  ]
+  transitions: Transition {
+    to: "lightON"
+    reversible: true
+    ParallelAnimation {
+      ColorAnimation {
+        property: "color"
+
+        duration: AppSingleton.timer500
+      }
+      ColorAnimation {
+        property: "border.color"
+
+        duration: AppSingleton.timer500
+      }
+      NumberAnimation {
+        property: "radius"
+        easing.type: Easing.InOutCubic
+        duration: AppSingleton.timer500
+      }
     }
   }
 }

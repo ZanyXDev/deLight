@@ -261,12 +261,12 @@ QQC2.Page {
             idx: index
             x_pos: idx % 5
             y_pos: idx / 5
-            lighting: model.cell
-            startAimation: root.doTileAnimation
+            state: (model.cell) ? "lightON" : "lightOFF"
+            //startAimation: root.doTileAnimation
             delayWin: model.delayWin
             delayLose: model.delayLose
-            statusWinLose: root.statusWinLose
 
+            //statusWinLose: root.statusWinLose
             onClicked: {
               explosion.parent = this
               explosion.explode()
@@ -274,9 +274,9 @@ QQC2.Page {
               Logic.clickOnTile(workModel, x_pos, y_pos)
               moves++
             }
-            onAnimationFinished: {
-              root.animCellCount--
-            }
+            //            onAnimationFinished: {
+            //              root.animCellCount--
+            //            }
           }
         }
       }
@@ -321,6 +321,7 @@ QQC2.Page {
     id: workModel
   }
   Explosion {
+    /// TODO move to Tile
     id: explosion
   }
 }
