@@ -52,7 +52,7 @@ QQC2.Page {
       if (moves < 99) {
         if (Logic.isWinGame(workModel)) {
           root.animCellCount = AppSingleton.cellsCount
-           Logic.fillModelState(workModel)
+          //Logic.fillModelState(workModel)
           root.statusWinLose = true
         }
       } else {
@@ -194,7 +194,7 @@ QQC2.Page {
             sourceSize.height: height
             clockwise: true
             onClicked: {
-              workModel.setProperty(13, "state","lightBLK")
+              workModel.setProperty(13, "m_state", "lightBLK")
               //Logic.fillModelFromLevels(workModel, currentLevel)
             }
           }
@@ -260,7 +260,7 @@ QQC2.Page {
             idx: index
             x_pos: idx % 5
             y_pos: idx / 5
-            state: model.state
+            state: model.m_state
 
             delayWin: model.delayWin
             delayLose: model.delayLose
@@ -269,7 +269,7 @@ QQC2.Page {
             onClicked: {
               explosion.parent = this
               explosion.explode()
-              model.cell = (model.cell) ? 0 : 1
+
               Logic.clickOnTile(workModel, x_pos, y_pos)
               moves++
             }
@@ -300,7 +300,7 @@ QQC2.Page {
         model: workModel
         delegate: Column {
           Text {
-            text: cell
+            text: cell + "|" + m_state
             anchors.horizontalCenter: parent.horizontalCenter
           }
           //Text { text: delay; anchors.horizontalCenter: parent.horizontalCenter }
