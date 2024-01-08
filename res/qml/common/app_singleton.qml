@@ -10,6 +10,8 @@ QtObject {
     readonly property int smallFontSize: 12
     readonly property int tinyFontSize: 10
 
+    readonly property int cellsCount: 25
+
     property FontLoader gameFont: FontLoader {
         id: gameFont
         source: "qrc:/res/fonts/mailrays.ttf"
@@ -26,6 +28,7 @@ QtObject {
 
     /* This is msecs. Half of second is enough for smooth animation. */
     readonly property int timer16: 16
+    readonly property int timer100: 100
     readonly property int timer200: 200
     readonly property int timer500: 500
     readonly property int timer800: 800
