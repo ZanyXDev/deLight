@@ -313,14 +313,28 @@ QQC2.Page {
       Layout.fillWidth: true
     }
   }
+  Item{
+    id:timeLineAnimation
+    property int animCellCount: AppSingleton.cellsCount
+    property int animationMode
 
+
+  }
   //-------------
   // ----- Qt provided non-visual children
   ListModel {
     id: workModel
   }
+  ListModel {
+    id: gameRoundModel
+    ListElement{
+      move:  0
+      score: 0
+      iswin: false
+    }
+  }
+
   Explosion {
-    /// TODO move to Tile
     id: explosion
   }
 }

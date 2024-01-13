@@ -14,5 +14,6 @@
         <file>res/qml/pages/game_page.qml</file>
         <file>res/qml/effects/qmldir</file>
         <file>res/qml/effects/explosion.qml</file>
+        <file>res/qml/common/time_line.qml</file>
     </qresource>
 </RCC>
