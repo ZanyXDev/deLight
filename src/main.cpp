@@ -61,7 +61,7 @@ int main(int argc, char *argv[]) {
 
 #ifdef QT_DEBUG
     m_hal->setDebugMode(true);
-    QLoggingCategory::setFilterRules(QStringLiteral("qt.qml.binding.removal.info=true"));
+    QLoggingCategory::setFilterRules(QStringLiteral("qt.qml.binding.removal.info=true"));   
 #endif
 
     QQmlContext *context = engine.rootContext();
@@ -80,11 +80,11 @@ int main(int argc, char *argv[]) {
 
     const QUrl url(QStringLiteral("qrc:/res/qml/main.qml"));
     QObject::connect(
-                &engine, &QQmlApplicationEngine::objectCreated, &app,
-                [url](const QObject *obj, const QUrl &objUrl) {
-        if (!obj && url == objUrl) QCoreApplication::exit(-1);
-    },
-    Qt::QueuedConnection);
+        &engine, &QQmlApplicationEngine::objectCreated, &app,
+        [url](const QObject *obj, const QUrl &objUrl) {
+            if (!obj && url == objUrl) QCoreApplication::exit(-1);
+        },
+        Qt::QueuedConnection);
 
     // Register the singleton type provider with QML by calling this
     // function in an initialization function.

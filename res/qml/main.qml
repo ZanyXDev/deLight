@@ -51,6 +51,7 @@ QQC2.ApplicationWindow {
     AppSingleton.toLog(`DevicePixelRatio :[${DevicePixelRatio}]`)
     timerT1.start()
     AppSingleton.toLog(`Screen height ${height},width ${width}`)
+    AppSingleton.toLog(`Qt verion build ${HAL.getAppBuildInfo()}`)
     ///TODO select level and fill Model
   }
 
