@@ -85,13 +85,27 @@ QQC2.ApplicationWindow {
   }
 
   // ----- Visual children
-  FadeStackLayout {
-    id: fadeLayout
+   FadeStackLayout {
+        id: fadeLayout
+        InitPage {
+            id:initPage
+            onShowNextPage: {
+                console.trace()
+                AppSingleton.toLog(`onShowNextPage`);
+                if (fadeLayout.count > 1){
+                    fadeLayout.currentIndex++
+                }
+            }
+        }
 
-    GamePage {
-      id: gamePage
+        GamePage {
+            id:gamePage
+        }
+        Component.onCompleted: {
+            initPage.pageActive= true
+        }
     }
-  }
+
   //  ----- non visual children
   Settings {
     id: mSettings

@@ -4,7 +4,8 @@ import QtQuick.Layouts 1.15
 import QtGraphicalEffects 1.0
 
 import common 1.0
-import effects 1.0
+import effects.shine 1.0
+import effects.explosion 1.0
 
 import "qrc:/res/js/logic.js" as Logic
 
@@ -22,6 +23,9 @@ QQC2.Page {
   property int animCellCount
   property bool doTileAnimation: false
   property bool statusWinLose: false
+
+  property int animationCounter
+  property bool showAnimation: false
 
   // ----- Signal declarations
   signal levelUp(int currentLevel)
@@ -52,7 +56,7 @@ QQC2.Page {
       if (moves < 99) {
         if (Logic.isWinGame(workModel)) {
           root.animCellCount = AppSingleton.cellsCount
-           Logic.fillModelState(workModel)
+          Logic.fillModelState(workModel)
           root.statusWinLose = true
         }
       } else {
@@ -241,7 +245,7 @@ QQC2.Page {
       id: gameGridRectangle
 
       Layout.fillWidth: true
-      Layout.preferredHeight: 262 * DevicePixelRatio
+      Layout.preferredHeight: 324 * DevicePixelRatio
       Layout.alignment: Qt.AlignHCenter
 
       GridLayout {
@@ -277,6 +281,12 @@ QQC2.Page {
               root.animCellCount--
             }
           }
+        }
+      }
+      Component.onCompleted: {
+        if (isDebugMode) {
+          AppSingleton.toLog(
+                `gameGridRectangle h[${gameGridRectangle.height/DevicePixelRatio}], w[${gameGridRectangle.width/DevicePixelRatio}]`)
         }
       }
     }
