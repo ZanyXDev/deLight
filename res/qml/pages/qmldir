@@ -1,2 +1,3 @@
 module pages
+InitPage 1.0 init_page.qml
 GamePage 1.0 game_page.qml

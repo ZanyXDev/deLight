@@ -27,13 +27,11 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 HEADERS += \
-    	src/hal.h \
-        src/permissions.h
+        src/hal.h
 
 SOURCES += \
             src/main.cpp \
-            src/hal.cpp \
-            src/permissions.cpp
+            src/hal.cpp
 
 RESOURCES += \
         images.qrc \
@@ -59,5 +57,29 @@ add_source_task{
 
 add_ext_res_task{
     message("create extra RESOURCES binary file")
-    system($$PWD/tools/ci/create_ext_res.sh $$[QT_INSTALL_PREFIX])
+ #   system($$PWD/tools/ci/create_ext_res.sh $$[QT_INSTALL_PREFIX])
 }
+
+android {
+    QT += androidextras
+
+    ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
+
+    disable-xcb {
+        message("The disable-xcb option has been deprecated. Please use disable-desktop instead.")
+        CONFIG += disable-desktop
+    }
+    contains(ANDROID_TARGET_ARCH,armeabi-v7a) {
+            ANDROID_EXTRA_LIBS = \
+              $$PWD/android/3rdparty/openssl/armeabi-v7a/libcrypto_1_1.so \
+              $$PWD/android/3rdparty/openssl/armeabi-v7a/libssl_1_1.so
+     }
+    contains(ANDROID_TARGET_ARCH,arm64-v8a) {
+            ANDROID_EXTRA_LIBS = \
+                $$PWD/android/3rdparty/openssl/arm64-v8a/libcrypto_1_1.so \
+                $$PWD/android/3rdparty/openssl/arm64-v8a/libssl_1_1.so
+     }
+
+}
+
+

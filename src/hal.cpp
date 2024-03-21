@@ -7,16 +7,12 @@ Hal::Hal(QObject *parent)
     , m_devicePixelRatio(0)
     , m_debugMode(false)
     , m_externalStorageAccessGranted(false)
-    , permissions(nullptr)
+    , m_appBuildInfo(QString())
 {
 #ifdef Q_OS_ANDROID
-     permissions = new Permissions();
-     qDebug() << "Before request permissions->getPermissionResult():" <<permissions->getPermissionResult();
-     permissions->requestExternalStoragePermission();
-     qDebug() << "After request permissions->getPermissionResult():" <<permissions->getPermissionResult();
-#else
     m_externalStorageAccessGranted = true;
 #endif
+    m_appBuildInfo= QString(tr("This program uses Qt version %1.")).arg(QT_VERSION_STR);
 }
 
 
@@ -60,8 +56,8 @@ double Hal::getDevicePixelRatio() const{
     density = 240;
 #endif
     return   density >= 480 ? 3 :
-                              density >= 320 ? 2 :
-                                               density >= 240 ? 1.5 : 1;
+               density >= 320 ? 2 :
+               density >= 240 ? 1.5 : 1;
 }
 
 bool Hal::getDebugMode() const
@@ -94,7 +90,7 @@ void Hal::setDevicePixelRatio(qreal m_dpr)
     if (m_devicePixelRatio == m_dpr){
         return;
     }
-     m_devicePixelRatio = m_dpr;
+    m_devicePixelRatio = m_dpr;
 }
 
 /*!
@@ -111,4 +107,8 @@ void Hal::createAppFolder(){
     if (dirAppData.exists() == false) {
         dirAppData.mkpath(dirAppData.path());
     }
+}
+
+QString Hal::getAppBuildInfo() {
+    return m_appBuildInfo;
 }
