@@ -27,6 +27,7 @@
         <file>res/images/play.svg</file>
         <file>res/images/setup.svg</file>
         <file>res/images/delight_logo.png</file>
+        <file>res/images/effects/shine.svg</file>
     </qresource>
     <qresource prefix="/effects"/>
 </RCC>
